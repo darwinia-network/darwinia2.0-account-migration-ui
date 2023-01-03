@@ -1,8 +1,21 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { dAppSupportedWallets } from "@darwinia/app-config";
-import { ChainConfig, WalletCtx, WalletError, SupportedWallet, WalletConfig } from "@darwinia/app-types";
-import { Contract, ethers } from "ethers";
-import { Web3Provider, JsonRpcSigner } from "@ethersproject/providers";
+import {
+  ChainConfig,
+  WalletCtx,
+  WalletError,
+  SupportedWallet,
+  WalletConfig,
+  CustomInjectedAccountWithMeta,
+} from "@darwinia/app-types";
+import { Contract } from "ethers";
+import { Web3Provider } from "@ethersproject/providers";
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
+import { Signer } from "@polkadot/api/types";
+import useAccountPrettyName from "./hooks/useAccountPrettyName";
+import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { keyring } from "@polkadot/ui-keyring";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
@@ -12,6 +25,7 @@ const initialState: WalletCtx = {
   isWalletConnected: false,
   error: undefined,
   selectedAccount: undefined,
+  injectedAccounts: undefined,
   depositContract: undefined,
   stakingContract: undefined,
   selectedNetwork: undefined,
@@ -23,9 +37,6 @@ const initialState: WalletCtx = {
     //do nothing
   },
   disconnectWallet: () => {
-    //do nothing
-  },
-  addKTONtoWallet: () => {
     //do nothing
   },
   forceSetAccountAddress: (address: string) => {
@@ -40,21 +51,28 @@ const WalletContext = createContext<WalletCtx>(initialState);
 
 export const WalletProvider = ({ children }: PropsWithChildren) => {
   const [provider, setProvider] = useState<Web3Provider>();
-  const [signer, setSigner] = useState<JsonRpcSigner>();
+  const [signer, setSigner] = useState<Signer>();
   const [depositContract, setDepositContract] = useState<Contract>();
   const [stakingContract, setStakingContract] = useState<Contract>();
   const [isRequestingWalletConnection, setRequestingWalletConnection] = useState<boolean>(false);
   const [isWalletConnected, setWalletConnected] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<string>();
+  const [selectedAccount, setSelectedAccount] = useState<CustomInjectedAccountWithMeta>();
+  const [injectedAccounts, setInjectedAccounts] = useState<CustomInjectedAccountWithMeta[]>();
+  const injectedAccountsRef = useRef<InjectedAccountWithMeta[]>([]);
   const forcedAccountAddress = useRef<string>();
   const [error, setError] = useState<WalletError | undefined>(undefined);
   const [selectedNetwork, setSelectedNetwork] = useState<ChainConfig>();
   const [selectedWallet] = useState<SupportedWallet>("MetaMask");
   const [walletConfig, setWalletConfig] = useState<WalletConfig>();
   const [isLoadingTransaction, setLoadingTransaction] = useState<boolean>(false);
+  const [apiPromise, setApiPromise] = useState<ApiPromise>();
+  const { getPrettyName } = useAccountPrettyName(apiPromise);
+  const DARWINIA_APPS = "darwinia/apps";
+  const isKeyringInitialized = useRef<boolean>(false);
 
   const isWalletInstalled = () => {
-    return !!window.ethereum;
+    const injectedWallet = window.injectedWeb3;
+    return !!(injectedWallet && injectedWallet["polkadot-js"]);
   };
 
   useEffect(() => {
@@ -64,66 +82,18 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
     }
   }, [selectedWallet]);
 
-  /* Listen to metamask account changes */
+  /* This will help us to extract pretty names from the chain test accounts such as Alith,etc */
   useEffect(() => {
-    if (!isWalletInstalled() || !isWalletConnected) {
-      setSelectedAccount(undefined);
-      return;
-    }
-
-    const onAccountsChanged = (accounts: string[]) => {
-      if (accounts.length > 0) {
-        const account = forcedAccountAddress.current ? forcedAccountAddress.current : accounts[0];
-        setSelectedAccount(account);
-      }
-      console.log("account changed=====", accounts);
-    };
-
-    const onChainChanged = () => {
-      setWalletConnected(false);
-      /*Metamask recommends reloading the whole page ref: https://docs.metamask.io/guide/ethereum-provider.html#events */
-      window.location.reload();
-    };
-
-    window.ethereum?.on<string[]>("accountsChanged", onAccountsChanged);
-    window.ethereum?.on("chainChanged", onChainChanged);
-
-    return () => {
-      window.ethereum?.removeListener("accountsChanged", onAccountsChanged);
-      window.ethereum?.removeListener("chainChanged", onChainChanged);
-    };
-  }, [isWalletConnected]);
-
-  const addKTONtoWallet = useCallback(async () => {
     try {
-      if (!isWalletInstalled() || !selectedNetwork) {
-        return;
+      if (selectedNetwork && !isKeyringInitialized.current) {
+        isKeyringInitialized.current = true;
+        keyring.loadAll({
+          type: "sr25519",
+          isDevelopment: selectedNetwork?.name === "Pangolin",
+        });
       }
-
-      const ktonConfig = selectedNetwork.kton;
-
-      const isSuccessful = await window.ethereum.request({
-        method: "wallet_watchAsset",
-        params: {
-          type: "ERC20",
-          options: {
-            address: ktonConfig.address,
-            symbol: ktonConfig.symbol,
-            decimals: ktonConfig.decimals,
-            image: ktonConfig.logo,
-          },
-        },
-      });
-
-      if (!isSuccessful) {
-        console.log("Something went wrong 💣");
-        return;
-      }
-
-      console.log("Token added successfully 🎉");
     } catch (e) {
       //ignore
-      console.log(e);
     }
   }, [selectedNetwork]);
 
@@ -135,121 +105,92 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
     setWalletConnected(false);
   }, []);
 
+  useEffect(() => {
+    const parseAccounts = async () => {
+      const customAccounts: CustomInjectedAccountWithMeta[] = [];
+
+      const accounts = injectedAccountsRef.current;
+      for (let i = 0; i < accounts.length; i++) {
+        const prettyName = await getPrettyName(accounts[i].address);
+        customAccounts.push({
+          ...accounts[i],
+          prettyName,
+        });
+      }
+      if (customAccounts.length > 0) {
+        setSelectedAccount(customAccounts[0]);
+      }
+      setInjectedAccounts(customAccounts);
+    };
+
+    parseAccounts().catch(() => {
+      //ignore
+    });
+  }, [injectedAccountsRef.current, apiPromise]);
+
   /*Connect to MetaMask*/
   const connectWallet = useCallback(async () => {
     if (!selectedNetwork || isRequestingWalletConnection) {
       return;
     }
+
     try {
-      setWalletConnected(false);
       if (!isWalletInstalled()) {
         setError({
-          code: 0,
-          message: "Wallet is not installed",
+          code: 1,
+          message: "Please Install Polkadot JS Extension",
         });
-        setWalletConnected(false);
         return;
       }
-
-      setRequestingWalletConnection(true);
-      //try switching the token to the selected network token
-      const chainResponse = await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: ethers.utils.hexlify(selectedNetwork.chainId) }],
+      setWalletConnected(false);
+      const provider = new WsProvider(selectedNetwork.substrate.wssURL);
+      const api = new ApiPromise({
+        provider,
       });
-      if (!chainResponse) {
-        //The chain was switched successfully, request account permission
-        // request account permission
-        try {
-          console.log("lever 1=====");
-          const accounts = await window.ethereum.request({
-            method: "eth_requestAccounts",
-          });
-          if (accounts && Array.isArray(accounts) && accounts.length > 0) {
-            const account = forcedAccountAddress.current ? forcedAccountAddress.current : accounts[0];
-            setSelectedAccount(account);
-            setRequestingWalletConnection(false);
-            setWalletConnected(true);
-          }
-        } catch (e) {
-          console.log("cetch leve 1=====", e);
+
+      api.on("connected", async () => {
+        const readyAPI = await api.isReady;
+        setApiPromise(readyAPI);
+      });
+      api.on("disconnected", () => {
+        // console.log("disconnected");
+      });
+      api.on("error", () => {
+        // console.log("error");
+      });
+
+      const injectedWallet = window.injectedWeb3;
+      const wallet = injectedWallet["polkadot-js"];
+      if (!wallet.enable) {
+        return;
+      }
+      const res = await wallet.enable(DARWINIA_APPS);
+      if (res) {
+        /*web3Enable MUST be called before calling anything related to the Polkadot Extension*/
+        const enabledExtensions = await web3Enable("anything you want");
+
+        if (enabledExtensions.length === 0) {
+          return;
+        }
+        /* this is the signer that needs to be used when we sign a transaction */
+        setSigner(enabledExtensions[0].signer);
+        /* this will return a list of all the accounts that are in the Polkadot extension */
+        const accounts = await web3Accounts();
+        accounts.forEach((account) => {
+          keyring.saveAddress(account.address, account.meta);
+        });
+        injectedAccountsRef.current = accounts;
+
+        if (accounts.length > 0) {
+          /* we default using the first account */
+          setWalletConnected(true);
           setRequestingWalletConnection(false);
-          setWalletConnected(false);
-          setError({
-            code: 4,
-            message: "Account access permission rejected",
-          });
         }
       }
     } catch (e) {
-      console.log("master catch=====", e);
-      if ((e as { code: number }).code === 4902) {
-        /*Unrecognized chain, add it first*/
-        try {
-          const addedChainResponse = await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: ethers.utils.hexlify(selectedNetwork.chainId),
-                chainName: selectedNetwork.name,
-                nativeCurrency: {
-                  ...selectedNetwork.ring,
-                },
-                rpcUrls: [...selectedNetwork.httpsURLs],
-                blockExplorerUrls: [...selectedNetwork.explorerURLs],
-              },
-            ],
-          });
-          if (!addedChainResponse) {
-            // request account permission
-            try {
-              console.log("try again======");
-              const accounts = await window.ethereum.request({
-                method: "eth_requestAccounts",
-              });
-              if (accounts && Array.isArray(accounts) && accounts.length > 0) {
-                const account = forcedAccountAddress.current ? forcedAccountAddress.current : accounts[0];
-                setSelectedAccount(account);
-                setRequestingWalletConnection(false);
-                setWalletConnected(true);
-              }
-            } catch (e) {
-              console.log("catch again ======");
-              setRequestingWalletConnection(false);
-              setError({
-                code: 3,
-                message: "Account access permission rejected",
-              });
-              setWalletConnected(false);
-            }
-          }
-        } catch (e) {
-          console.log("catch add ethereum======");
-          setError({
-            code: 1,
-            message: "User rejected adding ethereum chain",
-          });
-          setRequestingWalletConnection(false);
-          setWalletConnected(false);
-        }
-        return;
-      }
-      console.log("master catch under if======", e);
-      setRequestingWalletConnection(false);
-      setWalletConnected(false);
-      if ((e as { code: number }).code === 4001) {
-        setError({
-          code: 4,
-          message: "Account access permission rejected",
-        });
-      } else {
-        setError({
-          code: 5,
-          message: "Something else happened",
-        });
-      }
+      //ignore
     }
-  }, [isWalletInstalled, selectedNetwork, isRequestingWalletConnection]);
+  }, [isWalletInstalled, selectedNetwork, isRequestingWalletConnection, apiPromise, getPrettyName]);
 
   const changeSelectedNetwork = useCallback(
     (network: ChainConfig) => {
@@ -257,30 +198,6 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
     },
     [selectedNetwork]
   );
-
-  /*This will be fired once the connection to the wallet is successful*/
-  useEffect(() => {
-    if (!isWalletConnected || !selectedAccount || !selectedNetwork) {
-      return;
-    }
-    //refresh the page with the newly selected account
-    const newProvider = new ethers.providers.Web3Provider(window.ethereum);
-    const newSigner = newProvider.getSigner();
-    const newStakingContract = new ethers.Contract(
-      selectedNetwork.contractAddresses.staking,
-      selectedNetwork.contractInterface.staking,
-      newSigner
-    );
-    const newDepositContract = new ethers.Contract(
-      selectedNetwork.contractAddresses.deposit,
-      selectedNetwork.contractInterface.deposit,
-      newSigner
-    );
-    setProvider(newProvider);
-    setSigner(newSigner);
-    setStakingContract(newStakingContract);
-    setDepositContract(newDepositContract);
-  }, [selectedAccount, isWalletConnected, selectedNetwork]);
 
   const forceSetAccountAddress = useCallback((accountAddress: string) => {
     forcedAccountAddress.current = accountAddress;
@@ -302,9 +219,9 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         stakingContract,
         signer,
         selectedAccount,
+        injectedAccounts,
         isRequestingWalletConnection,
         connectWallet,
-        addKTONtoWallet,
         error,
         changeSelectedNetwork,
         selectedNetwork,

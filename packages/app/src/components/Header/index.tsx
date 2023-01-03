@@ -8,7 +8,7 @@ import { useStorage, useWallet } from "@darwinia/app-providers";
 import { supportedNetworks } from "@darwinia/app-config";
 import { ChainConfig } from "@darwinia/app-types";
 import { toShortAddress } from "@darwinia/app-utils";
-import JazzIcon from "../JazzIcon";
+import Identicon from "@polkadot/react-identicon";
 import { ethers } from "ethers";
 import JoinCollatorModal, { JoinCollatorRefs } from "../JoinCollatorModal";
 import ManageCollatorModal, { ManageCollatorRefs } from "../ManageCollatorModal";
@@ -21,8 +21,6 @@ const Header = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const joinCollatorModalRef = useRef<JoinCollatorRefs>(null);
-  const [moreOptionsTrigger, setMoreOptionsTrigger] = useState<HTMLDivElement | null>(null);
-  const [moreOptionsTriggerMobile, setMoreOptionsTriggerMobile] = useState<HTMLDivElement | null>(null);
   const manageCollatorModalRef = useRef<ManageCollatorRefs>(null);
   const { collators } = useStorage();
 
@@ -79,39 +77,6 @@ const Header = () => {
     console.log("collator joined");
   };
 
-  const isUserACollator = () => {
-    return collators?.some((collator) => collator.accountAddress.toLowerCase() === selectedAccount?.toLowerCase());
-  };
-
-  const accountOptions = () => {
-    const joinCollatorClass = isUserACollator() ? "text-halfWhite cursor-no-drop" : "cursor-pointer  clickable";
-    const manageCollatorClass = isUserACollator() ? "cursor-pointer  clickable" : "text-halfWhite cursor-no-drop";
-    return (
-      <div className={"border bg-black flex flex-col gap-[10px] border-primary p-[20px] select-none"}>
-        <div
-          onClick={() => {
-            if (!isUserACollator()) {
-              onShowJoinCollatorModal();
-            }
-          }}
-          className={`capitalize ${joinCollatorClass}`}
-        >
-          {t(localeKeys.joinCollator)}
-        </div>
-        <div
-          onClick={() => {
-            if (isUserACollator()) {
-              onShowManageCollatorModal();
-            }
-          }}
-          className={`capitalize ${manageCollatorClass}`}
-        >
-          {t(localeKeys.manageCollator)}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className={`shrink-0 h-[66px] lg:h-[60px] w-full fixed top-0 left-0 right-0 z-[30] bg-black`}>
       <div className={"justify-center flex h-full wrapper-padding"}>
@@ -129,18 +94,11 @@ const Header = () => {
               {selectedAccount ? (
                 <div className={"border-primary border px-[15px] py-[7px]"}>
                   <div className={"flex items-center gap-[10px]"}>
-                    <JazzIcon size={20} address={ethers.utils.getAddress(selectedAccount)} />
-                    <div
-                      ref={setMoreOptionsTriggerMobile}
-                      onClick={onShowJoinCollatorModal}
-                      className={"select-none flex gap-[10px]"}
-                    >
-                      <div>{toShortAddress(ethers.utils.getAddress(selectedAccount))}</div>
+                    <Identicon size={20} value={selectedAccount?.address} theme={"polkadot"} />
+                    <div onClick={onShowJoinCollatorModal} className={"select-none flex gap-[10px]"}>
+                      <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
                       <img className={"w-[16px]"} src={caretIcon} alt="image" />
                     </div>
-                    <Popover offset={[16, 10]} triggerElementState={moreOptionsTriggerMobile} triggerEvent={"click"}>
-                      <div>{accountOptions()}</div>
-                    </Popover>
                   </div>
                 </div>
               ) : (
@@ -175,14 +133,11 @@ const Header = () => {
               {selectedAccount ? (
                 <div className={"border-primary border px-[15px] py-[5px] cursor-pointer"}>
                   <div className={"flex items-center gap-[10px]"}>
-                    <JazzIcon size={20} address={ethers.utils.getAddress(selectedAccount)} />
-                    <div ref={setMoreOptionsTrigger} className={"select-none flex gap-[10px]"}>
-                      <div>{toShortAddress(ethers.utils.getAddress(selectedAccount))}</div>
+                    <Identicon size={20} value={selectedAccount?.address} theme={"polkadot"} />
+                    <div className={"select-none flex gap-[10px]"}>
+                      <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
                       <img className={"w-[16px]"} src={caretIcon} alt="image" />
                     </div>
-                    <Popover offset={[16, 10]} triggerElementState={moreOptionsTrigger} triggerEvent={"click"}>
-                      <div>{accountOptions()}</div>
-                    </Popover>
                   </div>
                 </div>
               ) : (

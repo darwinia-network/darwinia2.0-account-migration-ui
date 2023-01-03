@@ -1,6 +1,8 @@
 import { ContractInterface } from "ethers";
-import { Web3Provider, JsonRpcSigner } from "@ethersproject/providers";
+import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
+import { Signer } from "@polkadot/api/types";
+import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 
 export type SupportedWallet = "MetaMask";
 export type SupportedBrowser = "Chrome" | "Firefox" | "Brave" | "Edge" | "Opera";
@@ -60,21 +62,25 @@ export interface WalletError {
   message: string;
 }
 
+export interface CustomInjectedAccountWithMeta extends InjectedAccountWithMeta {
+  prettyName: string | undefined;
+}
+
 export interface WalletCtx {
   provider: Web3Provider | undefined;
-  signer: JsonRpcSigner | undefined;
+  signer: Signer | undefined;
   depositContract: Contract | undefined;
   stakingContract: Contract | undefined;
   isRequestingWalletConnection: boolean;
   isWalletConnected: boolean;
   connectWallet: () => void;
   disconnectWallet: () => void;
-  addKTONtoWallet: () => void;
   forceSetAccountAddress: (accountAddress: string) => void;
   changeSelectedNetwork: (network: ChainConfig) => void;
   selectedNetwork: ChainConfig | undefined;
   error: WalletError | undefined;
-  selectedAccount: string | undefined;
+  selectedAccount: CustomInjectedAccountWithMeta | undefined;
+  injectedAccounts: CustomInjectedAccountWithMeta[] | undefined;
   setTransactionStatus: (value: boolean) => void;
   isLoadingTransaction: boolean | undefined;
 }

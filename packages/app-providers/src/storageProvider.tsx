@@ -42,7 +42,7 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
   const { stakingAsset, isLoadingLedger, deposits, stakedDepositsIds, stakedAssetDistribution, ktonBalance } =
     useLedger({
       apiPromise,
-      selectedAccount,
+      selectedAccount: selectedAccount?.address,
     });
   const { isLoadingPool, power, calculateExtraPower, calculatePower } = usePower({
     apiPromise,
