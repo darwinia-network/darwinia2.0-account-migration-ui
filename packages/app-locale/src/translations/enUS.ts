@@ -11,6 +11,7 @@ const enUs = {
   [localeKeys.accountMigrationTitle]: `<span class="link link-primary">Darwinia 2.0</span> Account Migration`,
   [localeKeys.accountMigrationInfo]: `Use Account Migrate after Darwinia 2.0 upgrade to move your {{ringSymbol}}s and {{ktonSymbol}}s from the <span class="link link-primary">substrate account</span> to your <span class="link link-primary">EVM account</span>. Connect your wallet to view available migrations on your account.`,
   [localeKeys.bonded]: "Bonded",
+  [localeKeys.selectAccount]: "Select Account",
 };
 
 export default enUs;

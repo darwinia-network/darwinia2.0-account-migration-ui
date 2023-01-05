@@ -7,6 +7,7 @@ import {
   SupportedWallet,
   WalletConfig,
   CustomInjectedAccountWithMeta,
+  AssetBalance,
 } from "@darwinia/app-types";
 import { Contract } from "ethers";
 import { Web3Provider } from "@ethersproject/providers";
@@ -16,6 +17,8 @@ import { Signer } from "@polkadot/api/types";
 import useAccountPrettyName from "./hooks/useAccountPrettyName";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { keyring } from "@polkadot/ui-keyring";
+import BigNumber from "bignumber.js";
+import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
@@ -25,6 +28,9 @@ const initialState: WalletCtx = {
   isWalletConnected: false,
   error: undefined,
   selectedAccount: undefined,
+  setSelectedAccount: (account: CustomInjectedAccountWithMeta) => {
+    //do nothing
+  },
   injectedAccounts: undefined,
   depositContract: undefined,
   stakingContract: undefined,
@@ -105,6 +111,25 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
     setWalletConnected(false);
   }, []);
 
+  const getAccountBalance = useCallback(
+    async (accountAddress: string): Promise<AssetBalance> => {
+      if (!apiPromise) {
+        return Promise.resolve({
+          ring: BigNumber(0),
+          kton: BigNumber(0),
+        });
+      }
+      /*We don't need to listen to account changes since the chain won't be producing blocks
+       * by that time */
+      const res = (await apiPromise.query.system.account(accountAddress)) as FrameSystemAccountInfo;
+      return Promise.resolve({
+        ring: BigNumber(res.data.free.toString()),
+        kton: BigNumber(res.data.freeKton.toString()),
+      });
+    },
+    [apiPromise]
+  );
+
   useEffect(() => {
     const parseAccounts = async () => {
       const customAccounts: CustomInjectedAccountWithMeta[] = [];
@@ -112,9 +137,11 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
       const accounts = injectedAccountsRef.current;
       for (let i = 0; i < accounts.length; i++) {
         const prettyName = await getPrettyName(accounts[i].address);
+        const balance = await getAccountBalance(accounts[i].address);
         customAccounts.push({
           ...accounts[i],
           prettyName,
+          balance: balance,
         });
       }
       if (customAccounts.length > 0) {
@@ -207,9 +234,14 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
     setLoadingTransaction(isLoading);
   }, []);
 
+  const setUserSelectedAccount = useCallback((account: CustomInjectedAccountWithMeta) => {
+    setSelectedAccount(account);
+  }, []);
+
   return (
     <WalletContext.Provider
       value={{
+        setSelectedAccount: setUserSelectedAccount,
         isLoadingTransaction,
         setTransactionStatus,
         disconnectWallet,

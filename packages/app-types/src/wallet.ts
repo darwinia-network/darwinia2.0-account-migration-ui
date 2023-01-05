@@ -3,6 +3,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { Signer } from "@polkadot/api/types";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { AssetBalance } from "./storage";
 
 export type SupportedWallet = "MetaMask";
 export type SupportedBrowser = "Chrome" | "Firefox" | "Brave" | "Edge" | "Opera";
@@ -64,6 +65,7 @@ export interface WalletError {
 
 export interface CustomInjectedAccountWithMeta extends InjectedAccountWithMeta {
   prettyName: string | undefined;
+  balance: AssetBalance;
 }
 
 export interface WalletCtx {
@@ -76,6 +78,7 @@ export interface WalletCtx {
   connectWallet: () => void;
   disconnectWallet: () => void;
   forceSetAccountAddress: (accountAddress: string) => void;
+  setSelectedAccount: (selectedAccount: CustomInjectedAccountWithMeta) => void;
   changeSelectedNetwork: (network: ChainConfig) => void;
   selectedNetwork: ChainConfig | undefined;
   error: WalletError | undefined;

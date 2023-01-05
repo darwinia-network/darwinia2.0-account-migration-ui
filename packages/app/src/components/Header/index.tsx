@@ -4,14 +4,12 @@ import caretIcon from "../../assets/images/caret-down.svg";
 import { useEffect, useRef, useState } from "react";
 import { Button, Popover } from "@darwinia/ui";
 import { useAppTranslation, localeKeys } from "@darwinia/app-locale";
-import { useStorage, useWallet } from "@darwinia/app-providers";
+import { useWallet } from "@darwinia/app-providers";
 import { supportedNetworks } from "@darwinia/app-config";
 import { ChainConfig } from "@darwinia/app-types";
 import { toShortAddress } from "@darwinia/app-utils";
 import Identicon from "@polkadot/react-identicon";
-import { ethers } from "ethers";
-import JoinCollatorModal, { JoinCollatorRefs } from "../JoinCollatorModal";
-import ManageCollatorModal, { ManageCollatorRefs } from "../ManageCollatorModal";
+import SelectAccountModal, { SelectAccountModalRef } from "../SelectAccountModal";
 
 const Header = () => {
   const [networkOptionsTrigger, setNetworkOptionsTrigger] = useState<HTMLDivElement | null>(null);
@@ -20,9 +18,7 @@ const Header = () => {
     useWallet();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
-  const joinCollatorModalRef = useRef<JoinCollatorRefs>(null);
-  const manageCollatorModalRef = useRef<ManageCollatorRefs>(null);
-  const { collators } = useStorage();
+  const selectAccountModalRef = useRef<SelectAccountModalRef>(null);
 
   /* set the wallet network accordingly */
   useEffect(() => {
@@ -63,18 +59,8 @@ const Header = () => {
     changeSelectedNetwork(network);
   };
 
-  const onShowJoinCollatorModal = () => {
-    document.body.click();
-    joinCollatorModalRef.current?.show();
-  };
-
-  const onShowManageCollatorModal = () => {
-    document.body.click();
-    manageCollatorModalRef.current?.show();
-  };
-
-  const onCollatorJoined = () => {
-    console.log("collator joined");
+  const onShowSelectAccountModal = () => {
+    selectAccountModalRef.current?.toggle();
   };
 
   return (
@@ -92,10 +78,13 @@ const Header = () => {
             {/*This connect wallet button / selected account info will only be shown on mobile phones*/}
             <div className={"shrink-0 h-full flex items-center lg:hidden"}>
               {selectedAccount ? (
-                <div className={"border-primary border px-[15px] py-[7px]"}>
+                <div className={"border-primary border pl-[15px]"}>
                   <div className={"flex items-center gap-[10px]"}>
                     <Identicon size={20} value={selectedAccount?.address} theme={"polkadot"} />
-                    <div onClick={onShowJoinCollatorModal} className={"select-none flex gap-[10px]"}>
+                    <div
+                      onClick={onShowSelectAccountModal}
+                      className={"select-none pr-[15px] py-[7px] flex gap-[10px]"}
+                    >
                       <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
                       <img className={"w-[16px]"} src={caretIcon} alt="image" />
                     </div>
@@ -131,10 +120,13 @@ const Header = () => {
                 );
               })}
               {selectedAccount ? (
-                <div className={"border-primary border px-[15px] py-[5px] cursor-pointer"}>
+                <div className={"border-primary border pl-[15px] cursor-pointer"}>
                   <div className={"flex items-center gap-[10px]"}>
                     <Identicon size={20} value={selectedAccount?.address} theme={"polkadot"} />
-                    <div className={"select-none flex gap-[10px]"}>
+                    <div
+                      onClick={onShowSelectAccountModal}
+                      className={"select-none pr-[15px] py-[5px] flex gap-[10px]"}
+                    >
                       <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
                       <img className={"w-[16px]"} src={caretIcon} alt="image" />
                     </div>
@@ -183,8 +175,8 @@ const Header = () => {
           </div>
         </div>
       </div>
-      <JoinCollatorModal ref={joinCollatorModalRef} onCollatorJoined={onCollatorJoined} />
-      <ManageCollatorModal ref={manageCollatorModalRef} />
+
+      <SelectAccountModal ref={selectAccountModalRef} />
     </div>
   );
 };

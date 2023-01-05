@@ -11,12 +11,12 @@ export const testNet: ChainConfig = {
   kton: {
     address: "0x0000000000000000000000000000000000000402",
     symbol: "PKTON",
-    decimals: 18,
+    decimals: 9,
   },
   ring: {
     name: "PRING",
     symbol: "PRING",
-    decimals: 18,
+    decimals: 9,
   },
   contractAddresses: {
     staking: "0x0000000000000000000000000000000000000601",
@@ -29,7 +29,7 @@ export const testNet: ChainConfig = {
   chainId: 43,
   substrate: {
     graphQlURL: "https://subql.darwinia.network/subql-apps-crab/",
-    wssURL: "ws://g1.dev.darwinia.network:20000",
+    wssURL: "wss://pangolin-rpc.darwinia.network/",
     httpsURL: "https://pangolin-rpc.darwinia.network",
   },
 };

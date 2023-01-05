@@ -3,28 +3,14 @@ import { AssetBalance, StakingAsset, StorageCtx } from "@darwinia/app-types";
 import { useWallet } from "./walletProvider";
 import { WsProvider, ApiPromise } from "@polkadot/api";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
-import usePower from "./hooks/usePower";
 import useLedger from "./hooks/useLedger";
 import BigNumber from "bignumber.js";
 import useCollators from "./hooks/useCollators";
 import { keyring } from "@polkadot/ui-keyring";
 
 const initialState: StorageCtx = {
-  power: undefined,
-  stakedAssetDistribution: undefined,
-  stakedDepositsIds: undefined,
-  deposits: undefined,
+  migrationAssetDistribution: undefined,
   isLoadingLedger: undefined,
-  isLoadingPool: undefined,
-  collators: undefined,
-  balance: undefined,
-  // this whole function does nothing, it's just a blueprint
-  calculatePower: (stakingAsset: StakingAsset): BigNumber => {
-    return BigNumber(0);
-  },
-  calculateExtraPower: (stakingAsset: StakingAsset): BigNumber => {
-    return BigNumber(0);
-  },
 };
 
 export type UnSubscription = () => void;
@@ -39,14 +25,16 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
     ring: BigNumber(0),
   });
 
-  const { stakingAsset, isLoadingLedger, deposits, stakedDepositsIds, stakedAssetDistribution, ktonBalance } =
-    useLedger({
-      apiPromise,
-      selectedAccount: selectedAccount?.address,
-    });
-  const { isLoadingPool, power, calculateExtraPower, calculatePower } = usePower({
-    apiPromise,
+  const {
     stakingAsset,
+    isLoadingLedger,
+    deposits,
+    stakedDepositsIds,
+    stakedAssetDistribution: migrationAssetDistribution,
+    ktonBalance,
+  } = useLedger({
+    apiPromise,
+    selectedAccount: selectedAccount?.address,
   });
 
   const isKeyringInitialized = useRef<boolean>(false);
@@ -142,16 +130,8 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
   return (
     <StorageContext.Provider
       value={{
-        balance,
-        power,
-        stakedAssetDistribution,
-        deposits,
-        stakedDepositsIds,
-        isLoadingPool,
+        migrationAssetDistribution,
         isLoadingLedger,
-        calculateExtraPower,
-        calculatePower,
-        collators,
       }}
     >
       {children}

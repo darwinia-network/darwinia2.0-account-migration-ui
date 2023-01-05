@@ -12,4 +12,5 @@ export const localeKeys = {
   accountMigrationTitle: "accountMigrationTitle",
   bonded: "bonded",
   loading: "loading",
+  selectAccount: "selectAccount",
 };

@@ -17,14 +17,6 @@ export interface AssetBalance {
 }
 
 export interface StorageCtx {
-  power: BigNumber | undefined;
-  stakedAssetDistribution: AssetDistribution | undefined;
-  calculatePower: (stakingAsset: StakingAsset) => BigNumber;
-  calculateExtraPower: (stakingAsset: StakingAsset) => BigNumber;
-  deposits: Deposit[] | undefined;
-  stakedDepositsIds: number[] | undefined;
+  migrationAssetDistribution: AssetDistribution | undefined;
   isLoadingLedger: boolean | undefined;
-  isLoadingPool: boolean | undefined;
-  collators: Collator[] | undefined;
-  balance: AssetBalance | undefined;
 }
