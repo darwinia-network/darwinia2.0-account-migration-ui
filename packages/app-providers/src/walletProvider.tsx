@@ -9,8 +9,6 @@ import {
   CustomInjectedAccountWithMeta,
   AssetBalance,
 } from "@darwinia/app-types";
-import { Contract } from "ethers";
-import { Web3Provider } from "@ethersproject/providers";
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { Signer } from "@polkadot/api/types";
@@ -22,8 +20,6 @@ import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
-  provider: undefined,
-  signer: undefined,
   isRequestingWalletConnection: false,
   isWalletConnected: false,
   error: undefined,
@@ -32,10 +28,9 @@ const initialState: WalletCtx = {
     //do nothing
   },
   injectedAccounts: undefined,
-  depositContract: undefined,
-  stakingContract: undefined,
   selectedNetwork: undefined,
   isLoadingTransaction: undefined,
+  isAccountMigrated: undefined,
   changeSelectedNetwork: () => {
     // do nothing
   },
@@ -51,15 +46,16 @@ const initialState: WalletCtx = {
   setTransactionStatus: (isLoading: boolean) => {
     //do nothing
   },
+  onInitMigration: (start: string, to: string) => {
+    //do nothing
+    return Promise.resolve(true);
+  },
 };
 
 const WalletContext = createContext<WalletCtx>(initialState);
 
 export const WalletProvider = ({ children }: PropsWithChildren) => {
-  const [provider, setProvider] = useState<Web3Provider>();
   const [signer, setSigner] = useState<Signer>();
-  const [depositContract, setDepositContract] = useState<Contract>();
-  const [stakingContract, setStakingContract] = useState<Contract>();
   const [isRequestingWalletConnection, setRequestingWalletConnection] = useState<boolean>(false);
   const [isWalletConnected, setWalletConnected] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<CustomInjectedAccountWithMeta>();
@@ -75,6 +71,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const { getPrettyName } = useAccountPrettyName(apiPromise);
   const DARWINIA_APPS = "darwinia/apps";
   const isKeyringInitialized = useRef<boolean>(false);
+  const [isAccountMigrated, setAccountMigrated] = useState<boolean>(true);
 
   const isWalletInstalled = () => {
     const injectedWallet = window.injectedWeb3;
@@ -105,9 +102,6 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
   const disconnectWallet = useCallback(() => {
     setSelectedAccount(undefined);
-    setProvider(undefined);
-    setDepositContract(undefined);
-    setStakingContract(undefined);
     setWalletConnected(false);
   }, []);
 
@@ -144,6 +138,19 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           balance: balance,
         });
       }
+
+      /* Force adding an address if there is an account address that was set from the URL */
+      if (forcedAccountAddress.current) {
+        const prettyName = await getPrettyName(forcedAccountAddress.current);
+        const balance = await getAccountBalance(forcedAccountAddress.current);
+        customAccounts.unshift({
+          prettyName,
+          balance,
+          type: "sr25519",
+          address: forcedAccountAddress.current,
+          meta: { source: "" },
+        });
+      }
       if (customAccounts.length > 0) {
         setSelectedAccount(customAccounts[0]);
       }
@@ -170,6 +177,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         return;
       }
       setWalletConnected(false);
+      setRequestingWalletConnection(true);
       const provider = new WsProvider(selectedNetwork.substrate.wssURL);
       const api = new ApiPromise({
         provider,
@@ -215,6 +223,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         }
       }
     } catch (e) {
+      setRequestingWalletConnection(false);
       //ignore
     }
   }, [isWalletInstalled, selectedNetwork, isRequestingWalletConnection, apiPromise, getPrettyName]);
@@ -235,8 +244,19 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const setUserSelectedAccount = useCallback((account: CustomInjectedAccountWithMeta) => {
+    setAccountMigrated(false);
     setSelectedAccount(account);
   }, []);
+
+  const onInitMigration = useCallback(
+    (from: string, to: string): Promise<boolean> => {
+      console.log("source account======", from);
+      console.log("destination account=======", to);
+      setAccountMigrated(true);
+      return Promise.resolve(true);
+    },
+    [apiPromise]
+  );
 
   return (
     <WalletContext.Provider
@@ -245,11 +265,8 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         isLoadingTransaction,
         setTransactionStatus,
         disconnectWallet,
-        provider,
         isWalletConnected,
-        depositContract,
-        stakingContract,
-        signer,
+        isAccountMigrated,
         selectedAccount,
         injectedAccounts,
         isRequestingWalletConnection,
@@ -258,6 +275,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         changeSelectedNetwork,
         selectedNetwork,
         forceSetAccountAddress,
+        onInitMigration,
       }}
     >
       {children}

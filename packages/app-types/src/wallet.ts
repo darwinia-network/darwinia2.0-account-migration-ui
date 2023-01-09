@@ -69,10 +69,6 @@ export interface CustomInjectedAccountWithMeta extends InjectedAccountWithMeta {
 }
 
 export interface WalletCtx {
-  provider: Web3Provider | undefined;
-  signer: Signer | undefined;
-  depositContract: Contract | undefined;
-  stakingContract: Contract | undefined;
   isRequestingWalletConnection: boolean;
   isWalletConnected: boolean;
   connectWallet: () => void;
@@ -86,4 +82,6 @@ export interface WalletCtx {
   injectedAccounts: CustomInjectedAccountWithMeta[] | undefined;
   setTransactionStatus: (value: boolean) => void;
   isLoadingTransaction: boolean | undefined;
+  onInitMigration: (from: string, to: string) => Promise<boolean>;
+  isAccountMigrated: boolean | undefined;
 }

@@ -39,7 +39,7 @@ const browserRouter = createHashRouter([
         path: "staking",
         element: (
           <Protected>
-            <LazyLoader componentFileName={"Staking"} />
+            <LazyLoader componentFileName={"Migration"} />
           </Protected>
         ),
       },

@@ -50,12 +50,12 @@ const SelectAccountModal = forwardRef<SelectAccountModalRef>((props, ref) => {
                 onSelectAccount(account);
               }}
               key={account.address}
-              className={`flex items-center cursor-pointer border divider ${selectedAccountClass} py-[10px] px-[20px] gap-[20px]`}
+              className={`flex cursor-pointer border divider ${selectedAccountClass} py-[10px] px-[20px] gap-[20px]`}
             >
               <Identicon
                 value={account.address}
                 size={36}
-                className={"rounded-full bg-white shrink-0"}
+                className={"rounded-full self-start bg-white shrink-0"}
                 theme={"polkadot"}
               />
               <div className={"flex flex-col gap-[5px] flex-ellipsis"}>
