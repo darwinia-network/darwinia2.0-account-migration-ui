@@ -42,6 +42,14 @@ const enUs = {
   [localeKeys.fromTheSubstrateAccount]: `From The Substrate Account ({{name}} 1.0)`,
   [localeKeys.toEVMAccount]: `To The EVM Account ({{name}} 2.0)`,
   [localeKeys.confirmAndMigrate]: "Confirm And Migrate",
+  [localeKeys.accountMigratedSuccessfully]: `This Account Has Been Migrated Successfully, You Can Switch Other Accounts In The Top Right Corner Of The Page To Migrate.`,
+  [localeKeys.whereNextAfterMigration]: `Also, You Can Navigate To <a class="link link-primary" href={{link}}>Staking.Darwinia.Network</a> To Participate In Staking Via Your EVM Account.`,
+  [localeKeys.status]: "Status",
+  [localeKeys.transactionHash]: "Transaction Hash",
+  [localeKeys.timestamp]: "Timestamp",
+  [localeKeys.migrateFrom]: "Migrate From",
+  [localeKeys.migrateTo]: "Migrate To",
+  [localeKeys.value]: "Value",
 };
 
 export default enUs;

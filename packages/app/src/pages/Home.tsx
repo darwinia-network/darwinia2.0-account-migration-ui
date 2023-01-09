@@ -16,7 +16,7 @@ const Home = () => {
           <div className={"text-24-bold"} dangerouslySetInnerHTML={{ __html: t(localeKeys.accountMigrationTitle) }} />
         </div>
         <div
-          className={"text-12"}
+          className={"text-12-bold leading-[24px]"}
           dangerouslySetInnerHTML={{
             __html: t(localeKeys.accountMigrationInfo, {
               ringSymbol: selectedNetwork?.ring.symbol,

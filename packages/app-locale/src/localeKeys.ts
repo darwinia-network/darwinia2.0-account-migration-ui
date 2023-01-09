@@ -41,4 +41,13 @@ export const localeKeys = {
   fromTheSubstrateAccount: "fromTheSubstrateAccount",
   toEVMAccount: "toEVMAccount",
   confirmAndMigrate: "confirmAndMigrate",
+  accountMigratedSuccessfully: "accountMigratedSuccessfully",
+  whereNextAfterMigration: "whereNextAfterMigration",
+  successfulMigrationInfo: "successfulMigrationInfo",
+  status: "status",
+  transactionHash: "transactionHash",
+  timestamp: "timestamp",
+  migrateFrom: "migrateFrom",
+  migrateTo: "migrateTo",
+  value: "value",
 };

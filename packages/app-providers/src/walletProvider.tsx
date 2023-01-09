@@ -71,7 +71,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const { getPrettyName } = useAccountPrettyName(apiPromise);
   const DARWINIA_APPS = "darwinia/apps";
   const isKeyringInitialized = useRef<boolean>(false);
-  const [isAccountMigrated, setAccountMigrated] = useState<boolean>(true);
+  const [isAccountMigrated, setAccountMigrated] = useState<boolean>(false);
 
   const isWalletInstalled = () => {
     const injectedWallet = window.injectedWeb3;
