@@ -1,7 +1,3 @@
-import { ContractInterface } from "ethers";
-import { Web3Provider } from "@ethersproject/providers";
-import { Contract } from "@ethersproject/contracts";
-import { Signer } from "@polkadot/api/types";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { AssetBalance } from "./storage";
 
@@ -17,16 +13,6 @@ export interface Token {
   logo?: string;
 }
 
-export interface ContractAddress {
-  staking: string;
-  deposit: string;
-}
-
-export interface ContractABI {
-  staking: ContractInterface;
-  deposit: ContractInterface;
-}
-
 export interface Substrate {
   wssURL: string;
   httpsURL: string;
@@ -40,10 +26,6 @@ export interface ChainConfig {
   chainId: number;
   ring: Token;
   kton: Token;
-  httpsURLs: string[];
-  explorerURLs: string[];
-  contractInterface: ContractABI;
-  contractAddresses: ContractAddress;
   substrate: Substrate;
 }
 

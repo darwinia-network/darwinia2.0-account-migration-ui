@@ -1,7 +1,6 @@
-import { u128, Struct, Vec } from "@polkadot/types";
-import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
-import BigNumber from "bignumber.js";
+import { Compact, Struct, u64, Vec } from "@polkadot/types";
 import { RegistrationJudgement } from "@polkadot/types/interfaces";
+import { AccountId, Balance, EraIndex, BlockNumber } from "@polkadot/types/interfaces";
 
 export interface PalletIdentityIdentityInfo extends Struct {
   display?: string;
@@ -22,93 +21,30 @@ export interface PalletIdentityRegistration extends Struct {
   info: PalletIdentityIdentityInfo;
 }
 
-export interface Collator {
-  id: string;
-  accountAddress: string;
-  accountName?: string;
-  totalStaked: BigNumber;
-  commission: string;
-  lastSessionBlocks: number;
-  isActive?: boolean;
+type StakingLockUnbonding = {
+  amount: Balance;
+  until: BlockNumber;
+};
+
+export type StakingLock = {
+  stakingAmount: Balance;
+  unbondings: StakingLockUnbonding[];
+};
+
+export interface TimeDepositItem extends Struct {
+  readonly value: Balance;
+  readonly startTime: u64; //time in seconds
+  readonly expireTime: u64; //time in seconds
 }
 
-export interface Reward {
-  id: string;
-  amount: string;
-  blockNumber: number;
-  blockTime: string;
+export interface StakingLedger extends Struct {
+  readonly stash: AccountId;
+  readonly active: Compact<Balance>;
+  readonly activeRing?: Compact<Balance>;
+  readonly activeDepositRing: Compact<Balance>;
+  readonly activeKton: Compact<Balance>;
+  readonly depositItems: Vec<TimeDepositItem>;
+  readonly ringStakingLock: StakingLock;
+  readonly ktonStakingLock: StakingLock;
+  readonly claimedRewards: Vec<EraIndex>;
 }
-
-export interface RewardedNode {
-  nodes: Reward[];
-}
-
-export interface StakingStash {
-  id: string; //accountId
-  totalRewarded: string; //RING/PRING,etc amount in string
-  rewardeds: RewardedNode;
-}
-
-export interface StakingAsset {
-  ring: BigNumber;
-  kton: BigNumber;
-}
-
-/*Staking types start here*/
-export interface DarwiniaStakingLedgerEncoded extends Struct {
-  stakedRing: u128;
-  stakedKton: u128;
-  stakedDeposits?: Uint8Array;
-}
-
-export interface DarwiniaStakingLedger {
-  stakedRing: BigNumber;
-  stakedKton: BigNumber;
-  stakedDeposits?: number[];
-  unstakingDeposits?: [number, number][];
-  unstakingRing?: [number, number][];
-  unstakingKton?: [number, number][];
-}
-
-export interface DepositEncoded extends Struct {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  id: u128;
-  value: u128;
-  expiredTime: u128;
-}
-
-export interface Deposit {
-  id: number;
-  accountId: string;
-  value: BigNumber;
-  reward: BigNumber;
-  startTime: number;
-  expiredTime: number;
-  inUse: boolean;
-  canRegularWithdraw: boolean;
-  isRegularWithdrawn: boolean;
-  canEarlyWithdraw: boolean;
-  isEarlyWithdrawn: boolean;
-}
-
-export interface Bond {
-  amount: BigNumber;
-  symbol: string;
-  isDeposit: boolean;
-}
-
-export interface Delegate {
-  id: string;
-  collator?: string;
-  previousReward?: string;
-  staked: BigNumber;
-  bondedTokens: Bond[];
-  isActive?: boolean;
-  isMigrated?: boolean;
-  isUndelegating?: boolean;
-  canUndelegate?: boolean;
-  canChangeCollator?: boolean;
-}
-
-/*Staking types end here*/
