@@ -1,6 +1,15 @@
-import { Compact, Struct, u64, Vec } from "@polkadot/types";
+import { Compact, Struct, u64, Vec, Enum } from "@polkadot/types";
 import { RegistrationJudgement } from "@polkadot/types/interfaces";
-import { AccountId, Balance, EraIndex, BlockNumber } from "@polkadot/types/interfaces";
+import {
+  AccountData,
+  AccountId,
+  Balance,
+  EraIndex,
+  BlockNumber,
+  AccountInfoWithTripleRefCount,
+  BalanceLock,
+  Reasons,
+} from "@polkadot/types/interfaces";
 
 export interface PalletIdentityIdentityInfo extends Struct {
   display?: string;
@@ -47,4 +56,29 @@ export interface StakingLedger extends Struct {
   readonly ringStakingLock: StakingLock;
   readonly ktonStakingLock: StakingLock;
   readonly claimedRewards: Vec<EraIndex>;
+}
+
+export interface CustomAccountData extends AccountData {
+  freeKton: Balance;
+}
+
+export interface CustomAccountInfoWithTripleRefCount extends AccountInfoWithTripleRefCount {
+  data: CustomAccountData;
+}
+
+export interface Common extends Struct {
+  readonly amount: Balance;
+}
+
+export interface LockFor extends Enum {
+  readonly isCommon: boolean;
+  readonly asCommon: Common;
+  readonly isStaking: boolean;
+  readonly asStaking: StakingLock;
+  readonly type: "Common" | "Staking";
+}
+
+export interface CustomDarwiniaBalanceLock extends BalanceLock {
+  lockReasons: Reasons;
+  lockFor: LockFor;
 }
