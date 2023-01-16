@@ -1,11 +1,10 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { AssetBalance, StakingAsset, StorageCtx } from "@darwinia/app-types";
+import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from "react";
+import { StorageCtx } from "@darwinia/app-types";
 import { useWallet } from "./walletProvider";
 import { WsProvider, ApiPromise } from "@polkadot/api";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 import useLedger from "./hooks/useLedger";
 import BigNumber from "bignumber.js";
-import useCollators from "./hooks/useCollators";
 import { keyring } from "@polkadot/ui-keyring";
 
 const initialState: StorageCtx = {
@@ -20,33 +19,13 @@ const StorageContext = createContext(initialState);
 export const StorageProvider = ({ children }: PropsWithChildren) => {
   const { selectedNetwork, selectedAccount } = useWallet();
   const [apiPromise, setApiPromise] = useState<ApiPromise>();
-  const [balance, setBalance] = useState<AssetBalance>({
-    kton: BigNumber(0),
-    ring: BigNumber(0),
-  });
 
-  const {
-    stakingAsset,
-    isLoadingLedger,
-    deposits,
-    stakedDepositsIds,
-    stakedAssetDistribution: migrationAssetDistribution,
-    ktonBalance,
-  } = useLedger({
+  const { isLoadingLedger, stakedAssetDistribution: migrationAssetDistribution } = useLedger({
     apiPromise,
     selectedAccount: selectedAccount?.address,
   });
 
   const isKeyringInitialized = useRef<boolean>(false);
-
-  useEffect(() => {
-    setBalance((old) => {
-      return {
-        ...old,
-        kton: ktonBalance,
-      };
-    });
-  }, [ktonBalance]);
 
   /* This will help us to extract pretty names from the chain test accounts such as Alith,etc */
   useEffect(() => {
@@ -62,8 +41,6 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
       //ignore
     }
   }, [selectedNetwork]);
-
-  const { collators } = useCollators(apiPromise);
 
   const initStorageNetwork = async (rpcURL: string) => {
     try {
@@ -86,39 +63,6 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
       //ignore
     }
   };
-
-  /*Monitor account balance*/
-  useEffect(() => {
-    let unsubscription: UnSubscription | undefined;
-    const getBalance = async () => {
-      if (!selectedAccount || !apiPromise) {
-        return;
-      }
-      try {
-        const res = await apiPromise?.query.system.account(selectedAccount, (accountInfo: FrameSystemAccountInfo) => {
-          setBalance((old) => {
-            return {
-              ...old,
-              ring: BigNumber(accountInfo.data.free.toString()),
-            };
-          });
-        });
-        unsubscription = res as unknown as UnSubscription;
-      } catch (e) {
-        // ignore
-      }
-    };
-
-    getBalance().catch(() => {
-      //do nothing
-    });
-
-    return () => {
-      if (unsubscription) {
-        unsubscription();
-      }
-    };
-  }, [apiPromise, selectedAccount]);
 
   useEffect(() => {
     if (!selectedNetwork) {

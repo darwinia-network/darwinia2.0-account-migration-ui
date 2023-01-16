@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import { Collator, Deposit, StakingAsset } from "./staking";
 
 export interface AssetDetail {
   bonded: BigNumber;
