@@ -2,7 +2,7 @@ import { localeKeys, useAppTranslation } from "@darwinia/app-locale";
 import helpIcon from "../../assets/images/help.svg";
 import { Button, CheckboxGroup, CheckboxItem, Input, ModalEnhanced, Tooltip } from "@darwinia/ui";
 import { ChangeEvent, useState } from "react";
-import { useWallet } from "@darwinia/app-providers";
+import { useStorage, useWallet } from "@darwinia/app-providers";
 import Identicon from "@polkadot/react-identicon";
 import JazzIcon from "../JazzIcon";
 

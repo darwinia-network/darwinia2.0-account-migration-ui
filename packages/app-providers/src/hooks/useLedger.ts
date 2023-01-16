@@ -101,8 +101,6 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
       const ktonLocks =
         ((await apiPromise.query.kton.locks(selectedAccount)) as unknown as Vec<CustomDarwiniaBalanceLock>) ?? [];
 
-      console.log("accountInfo=====", accountInfo);
-
       const stakingLedger = deriveStakingAccount.stakingLedger as StakingLedger;
 
       /*Ring calculations*/
@@ -116,12 +114,7 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
         maxUnusableRING = getMaximum(item, maxUnusableRING);
       });
       const availableRING = totalRING.sub(maxUnusableRING);
-
-      console.log("locked RING=====", lockedRing.toString());
-      console.log("bonded RING=====", bondedRing.toString());
-      console.log("unbondingRing=====", unbondingRing.toString());
-      console.log("unbondedRing=====", unbondedRing.toString());
-      console.log("transferableRING====", availableRING.toString());
+      const vestedRING = BN_ZERO;
 
       let maxUnusableKTON = BN_ZERO;
       ktonLocks.forEach((item) => {
@@ -132,10 +125,25 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
       const unbondingKton = getUnbondingAmount(currentBlock.number, stakingLedger, false);
       const availableKTON = totalKTON.sub(maxUnusableKTON);
 
-      console.log("bonded KTON=====", bondedKton.toString());
-      console.log("unbondingKTON=====", unbondingKton.toString());
-      console.log("unbondedKTON=====", unbondedKton.toString());
-      console.log("transferableKTON====", availableKTON.toString());
+      setStakedAssetDistribution({
+        ring: {
+          transferable: BigNumber(availableRING.toString()),
+          locked: BigNumber(lockedRing.toString()),
+          bonded: BigNumber(bondedRing.toString()),
+          unbonded: BigNumber(unbondedRing.toString()),
+          unbonding: BigNumber(unbondingRing.toString()),
+          vested: BigNumber(vestedRING.toString()),
+          total: BigNumber(totalRING.toString()),
+        },
+        kton: {
+          transferable: BigNumber(availableKTON.toString()),
+          bonded: BigNumber(bondedKton.toString()),
+          unbonded: BigNumber(unbondedKton.toString()),
+          unbonding: BigNumber(unbondingKton.toString()),
+          total: BigNumber(totalKTON.toString()),
+        },
+      });
+      setLoadingLedger(false);
     };
     getStakingLedgerAndDeposits().catch((e) => {
       setLoadingLedger(false);
