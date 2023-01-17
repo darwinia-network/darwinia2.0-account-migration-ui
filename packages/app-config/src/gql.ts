@@ -15,3 +15,12 @@ export const GET_LATEST_STAKING_REWARDS = gql`
     }
   }
 `;
+
+export const FIND_MIGRATION_BY_DESTINATION_ADDRESS = gql`
+  query stakingRewards($accountAddress: String!) {
+    stakingStash(id: $accountAddress) {
+      id
+      totalRewarded
+    }
+  }
+`;

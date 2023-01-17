@@ -1,11 +1,13 @@
 import { localeKeys, useAppTranslation } from "@darwinia/app-locale";
 import helpIcon from "../../assets/images/help.svg";
-import { Button, CheckboxGroup, CheckboxItem, Input, ModalEnhanced, Tooltip } from "@darwinia/ui";
+import { Button, CheckboxGroup, Input, ModalEnhanced, Tooltip } from "@darwinia/ui";
 import { ChangeEvent, useState } from "react";
-import { useStorage, useWallet } from "@darwinia/app-providers";
+import { useWallet } from "@darwinia/app-providers";
 import Identicon from "@polkadot/react-identicon";
 import JazzIcon from "../JazzIcon";
 import { isEthereumAddress } from "@darwinia/app-utils";
+import { FIND_MIGRATION_BY_DESTINATION_ADDRESS } from "@darwinia/app-config";
+import { useQuery } from "@apollo/client";
 
 interface Tip {
   id: number;
@@ -26,6 +28,17 @@ const MigrationForm = () => {
     setAddressError(undefined);
     setDestinationAddress(e.target.value);
   };
+
+  const { data: migrationData } = useQuery<{ id: number }, { accountAddress: string }>(
+    FIND_MIGRATION_BY_DESTINATION_ADDRESS,
+    {
+      variables: {
+        accountAddress: destinationAddress,
+      },
+    }
+  );
+
+  console.log("migrationData=======", migrationData);
 
   const attentionTips: Tip[] = [
     {
