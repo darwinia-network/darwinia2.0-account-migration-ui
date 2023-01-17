@@ -1,13 +1,12 @@
 import BigNumber from "bignumber.js";
 
 export interface AssetDetail {
-  locked?: BigNumber;
+  deposit?: BigNumber;
   transferable: BigNumber;
   bonded: BigNumber;
   unbonded: BigNumber;
   unbonding: BigNumber;
   vested?: BigNumber;
-  total: BigNumber;
 }
 
 export interface AssetDistribution {

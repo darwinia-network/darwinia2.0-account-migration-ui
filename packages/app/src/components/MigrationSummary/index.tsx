@@ -28,13 +28,6 @@ const MigrationSummary = () => {
                 <img className={"w-[30px] shrink-0"} src={ringIcon} alt={"image"} />
                 <div className={"text-18-bold"}>{selectedNetwork?.ring.symbol.toUpperCase()}</div>
               </div>
-              <div className={"text-18-bold"}>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.ring.total ?? BigNumber(0),
-                  precision: precision,
-                  unitDecimals: selectedNetwork?.ring.decimals,
-                })}
-              </div>
             </div>
           </div>
           <div className={"text-halfWhite text-12 flex flex-col gap-[10px]"}>
@@ -44,17 +37,15 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.ring.transferable ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.ring.decimals,
                 })}
               </div>
             </div>
             <div className={"flex justify-between"}>
-              <div>{t(localeKeys.locked)}</div>
+              <div>{t(localeKeys.deposit)}</div>
               <div>
                 {prettifyNumber({
-                  number: migrationAssetDistribution?.ring.locked ?? BigNumber(0),
+                  number: migrationAssetDistribution?.ring.deposit ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.ring.decimals,
                 })}
               </div>
             </div>
@@ -64,7 +55,6 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.ring.bonded ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.ring.decimals,
                 })}
               </div>
             </div>
@@ -74,7 +64,6 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.ring.unbonded ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.ring.decimals,
                 })}
               </div>
             </div>
@@ -89,7 +78,6 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.ring.unbonding ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.ring.decimals,
                 })}
               </div>
             </div>
@@ -104,7 +92,6 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.ring.vested ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.ring.decimals,
                 })}
               </div>
             </div>
@@ -117,13 +104,6 @@ const MigrationSummary = () => {
                 <img className={"w-[30px] shrink-0"} src={ktonIcon} alt={"image"} />
                 <div className={"text-18-bold"}>{selectedNetwork?.kton.symbol.toUpperCase()}</div>
               </div>
-              <div className={"text-18-bold"}>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.kton.total ?? BigNumber(0),
-                  precision: precision,
-                  unitDecimals: selectedNetwork?.kton.decimals,
-                })}
-              </div>
             </div>
           </div>
           <div className={"text-halfWhite text-12 flex flex-col gap-[10px]"}>
@@ -133,7 +113,6 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.kton.transferable ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.kton.decimals,
                 })}
               </div>
             </div>
@@ -143,7 +122,6 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.kton.bonded ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.kton.decimals,
                 })}
               </div>
             </div>
@@ -153,7 +131,6 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.kton.unbonded ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.kton.decimals,
                 })}
               </div>
             </div>
@@ -168,7 +145,6 @@ const MigrationSummary = () => {
                 {prettifyNumber({
                   number: migrationAssetDistribution?.kton.unbonding ?? BigNumber(0),
                   precision: precision,
-                  unitDecimals: selectedNetwork?.kton.decimals,
                 })}
               </div>
             </div>

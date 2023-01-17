@@ -5,6 +5,7 @@ import { ChangeEvent, useState } from "react";
 import { useStorage, useWallet } from "@darwinia/app-providers";
 import Identicon from "@polkadot/react-identicon";
 import JazzIcon from "../JazzIcon";
+import { isEthereumAddress } from "@darwinia/app-utils";
 
 interface Tip {
   id: number;
@@ -50,7 +51,7 @@ const MigrationForm = () => {
   ];
 
   const onMigrate = () => {
-    if (!destinationAddress.startsWith("0x")) {
+    if (!isEthereumAddress(destinationAddress)) {
       setAddressError(t(localeKeys.evmAccountIncorrect));
       return;
     }

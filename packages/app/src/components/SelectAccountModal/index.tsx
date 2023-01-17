@@ -68,7 +68,6 @@ const SelectAccountModal = forwardRef<SelectAccountModalRef>((props, ref) => {
                       precision: 4,
                       keepTrailingZeros: false,
                       shouldFormatToEther: true,
-                      unitDecimals: selectedNetwork?.ring.decimals,
                     })}{" "}
                     {selectedNetwork?.ring.symbol.toUpperCase()}
                   </div>
@@ -79,7 +78,6 @@ const SelectAccountModal = forwardRef<SelectAccountModalRef>((props, ref) => {
                       precision: 4,
                       keepTrailingZeros: false,
                       shouldFormatToEther: true,
-                      unitDecimals: selectedNetwork?.ring.decimals,
                     })}{" "}
                     {selectedNetwork?.kton.symbol.toUpperCase()}
                   </div>

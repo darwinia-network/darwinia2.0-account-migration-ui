@@ -1,15 +1,7 @@
-import { Compact, Struct, u64, Vec, Enum } from "@polkadot/types";
+import { Struct, Vec, Enum, u128, u32 } from "@polkadot/types";
 import { RegistrationJudgement } from "@polkadot/types/interfaces";
-import {
-  AccountData,
-  AccountId,
-  Balance,
-  EraIndex,
-  BlockNumber,
-  AccountInfoWithTripleRefCount,
-  BalanceLock,
-  Reasons,
-} from "@polkadot/types/interfaces";
+import { AccountId, Balance, BlockNumber } from "@polkadot/types/interfaces";
+import BigNumber from "bignumber.js";
 
 export interface PalletIdentityIdentityInfo extends Struct {
   display?: string;
@@ -40,45 +32,45 @@ export type StakingLock = {
   unbondings: StakingLockUnbonding[];
 };
 
-export interface TimeDepositItem extends Struct {
-  readonly value: Balance;
-  readonly startTime: u64; //time in seconds
-  readonly expireTime: u64; //time in seconds
-}
-
-export interface StakingLedger extends Struct {
-  readonly stash: AccountId;
-  readonly active: Compact<Balance>;
-  readonly activeRing?: Compact<Balance>;
-  readonly activeDepositRing: Compact<Balance>;
-  readonly activeKton: Compact<Balance>;
-  readonly depositItems: Vec<TimeDepositItem>;
-  readonly ringStakingLock: StakingLock;
-  readonly ktonStakingLock: StakingLock;
-  readonly claimedRewards: Vec<EraIndex>;
-}
-
-export interface CustomAccountData extends AccountData {
-  freeKton: Balance;
-}
-
-export interface CustomAccountInfoWithTripleRefCount extends AccountInfoWithTripleRefCount {
-  data: CustomAccountData;
-}
-
 export interface Common extends Struct {
   readonly amount: Balance;
 }
 
-export interface LockFor extends Enum {
-  readonly isCommon: boolean;
-  readonly asCommon: Common;
-  readonly isStaking: boolean;
-  readonly asStaking: StakingLock;
-  readonly type: "Common" | "Staking";
+export interface DarwiniaStakingLedgerEncoded extends Struct {
+  stakedRing: u128;
+  stakedKton: u128;
+  stakedDeposits?: Uint8Array;
 }
 
-export interface CustomDarwiniaBalanceLock extends BalanceLock {
-  lockReasons: Reasons;
-  lockFor: LockFor;
+export interface DarwiniaStakingLedger {
+  stakedRing: BigNumber;
+  stakedKton: BigNumber;
+  stakedDeposits?: number[];
+  unstakingDeposits?: [number, number][];
+  unstakingRing?: [number, number][];
+  unstakingKton?: [number, number][];
+}
+
+export interface DepositEncoded extends Struct {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  id: u128;
+  value: u128;
+  expiredTime: u128;
+}
+
+export interface Deposit {
+  id: number;
+  accountId: string;
+  value: BigNumber;
+  reward: BigNumber;
+  startTime: number;
+  expiredTime: number;
+  canEarlyWithdraw: boolean;
+}
+
+export interface PalletVestingVestingInfo extends Struct {
+  readonly locked: u128;
+  readonly perBlock: u128;
+  readonly startingBlock: u32;
 }

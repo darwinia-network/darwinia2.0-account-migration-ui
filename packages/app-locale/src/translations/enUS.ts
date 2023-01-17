@@ -50,6 +50,7 @@ const enUs = {
   [localeKeys.migrateFrom]: "Migrate From",
   [localeKeys.migrateTo]: "Migrate To",
   [localeKeys.value]: "Value",
+  [localeKeys.deposit]: "Deposit",
 };
 
 export default enUs;

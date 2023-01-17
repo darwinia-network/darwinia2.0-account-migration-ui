@@ -50,4 +50,5 @@ export const localeKeys = {
   migrateFrom: "migrateFrom",
   migrateTo: "migrateTo",
   value: "value",
+  deposit: "deposit",
 };

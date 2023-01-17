@@ -1,4 +1,5 @@
 import moment from "moment";
+import { utils } from "ethers";
 
 /*Use this to format the time ago to your own needs*/
 /*moment.updateLocale("en", {
@@ -20,4 +21,8 @@ export const toTimeAgo = (time: string | number, format = "YYYY-MM-DDTHH:mm:ss.S
 
 export const getMonthsRange = (startTimestamp: number, endTimestamp: number) => {
   return Math.round(moment(endTimestamp).diff(moment(startTimestamp), "months", true));
+};
+
+export const isEthereumAddress = (address: string): boolean => {
+  return utils.isAddress(address);
 };
