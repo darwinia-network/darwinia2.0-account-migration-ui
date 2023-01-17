@@ -26,13 +26,13 @@ const Root = () => {
   const redirect = useCallback(() => {
     setStore("isConnectedToWallet", true);
     if (location.pathname === "/") {
-      navigate(`/staking${location.search}`, { replace: true });
+      navigate(`/migration${location.search}`, { replace: true });
       return;
     }
 
     /* only navigate if the user is supposed to be redirected to another URL */
     if (location.state && location.state.from) {
-      const nextPath = location.state.from.pathname ? location.state.from.pathname : "/staking";
+      const nextPath = location.state.from.pathname ? location.state.from.pathname : "/migration";
       navigate(`${nextPath}${location.search}`, { replace: true });
     }
   }, [location, navigate]);

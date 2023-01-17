@@ -36,7 +36,7 @@ const browserRouter = createHashRouter([
         element: <LazyLoader componentFileName={"Home"} />,
       },
       {
-        path: "staking",
+        path: "migration",
         element: (
           <Protected>
             <LazyLoader componentFileName={"Migration"} />
