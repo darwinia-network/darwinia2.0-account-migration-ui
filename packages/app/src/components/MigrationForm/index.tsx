@@ -38,8 +38,6 @@ const MigrationForm = () => {
     }
   );
 
-  console.log("migrationData=======", migrationData);
-
   const attentionTips: Tip[] = [
     {
       id: 1,
@@ -113,8 +111,9 @@ const MigrationForm = () => {
     }
     try {
       setProcessingMigration(true);
-      const response = await onInitMigration(selectedAccount.address, destinationAddress);
-      setProcessingMigration(false);
+      onInitMigration(selectedAccount.address, destinationAddress, (isSuccessful) => {
+        setProcessingMigration(isSuccessful);
+      });
     } catch (e) {
       setProcessingMigration(false);
     }

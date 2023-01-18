@@ -4,6 +4,7 @@ import { AssetBalance } from "./storage";
 export type SupportedWallet = "MetaMask";
 export type SupportedBrowser = "Chrome" | "Firefox" | "Brave" | "Edge" | "Opera";
 export type ChainName = "Crab" | "Pangolin" | "Darwinia" | "Pangoro";
+import { Struct } from "@polkadot/types";
 
 export interface Token {
   name?: string;
@@ -64,6 +65,10 @@ export interface WalletCtx {
   injectedAccounts: CustomInjectedAccountWithMeta[] | undefined;
   setTransactionStatus: (value: boolean) => void;
   isLoadingTransaction: boolean | undefined;
-  onInitMigration: (from: string, to: string) => Promise<boolean>;
+  onInitMigration: (from: string, to: string, callback: (isSuccessful: boolean) => void) => void;
   isAccountMigrated: boolean | undefined;
+}
+
+export interface SpVersionRuntimeVersion extends Struct {
+  specName: string;
 }

@@ -204,6 +204,22 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
       setLoadingLedger(false);
     };
     getStakingLedgerAndDeposits().catch((e) => {
+      setStakedAssetDistribution({
+        ring: {
+          transferable: BigNumber(0),
+          deposit: BigNumber(0),
+          bonded: BigNumber(0),
+          unbonded: BigNumber(0),
+          unbonding: BigNumber(0),
+          vested: BigNumber(0),
+        },
+        kton: {
+          transferable: BigNumber(0),
+          bonded: BigNumber(0),
+          unbonded: BigNumber(0),
+          unbonding: BigNumber(0),
+        },
+      });
       setLoadingLedger(false);
       console.log(e);
       //ignore

@@ -8,8 +8,9 @@ import {
   WalletConfig,
   CustomInjectedAccountWithMeta,
   AssetBalance,
+  SpVersionRuntimeVersion,
 } from "@darwinia/app-types";
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise, WsProvider, SubmittableResult } from "@polkadot/api";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { Signer } from "@polkadot/api/types";
 import useAccountPrettyName from "./hooks/useAccountPrettyName";
@@ -17,6 +18,7 @@ import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { keyring } from "@polkadot/ui-keyring";
 import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
+import { UnSubscription } from "./storageProvider";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
@@ -46,7 +48,7 @@ const initialState: WalletCtx = {
   setTransactionStatus: (isLoading: boolean) => {
     //do nothing
   },
-  onInitMigration: (start: string, to: string) => {
+  onInitMigration: (start: string, to: string, callback: (isSuccessful: boolean) => void) => {
     //do nothing
     return Promise.resolve(true);
   },
@@ -72,6 +74,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const DARWINIA_APPS = "darwinia/apps";
   const isKeyringInitialized = useRef<boolean>(false);
   const [isAccountMigrated, setAccountMigrated] = useState<boolean>(false);
+  const [specName, setSpecName] = useState<string>();
 
   const isWalletInstalled = () => {
     const injectedWallet = window.injectedWeb3;
@@ -115,10 +118,11 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
       }
       /*We don't need to listen to account changes since the chain won't be producing blocks
        * by that time */
-      const res = (await apiPromise.query.system.account(accountAddress)) as FrameSystemAccountInfo;
+      const res = (await apiPromise.query.accountMigration.accounts(accountAddress)) as FrameSystemAccountInfo;
+      console.log("res=====", res.toHuman());
       return Promise.resolve({
-        ring: BigNumber(res.data.free.toString()),
-        kton: BigNumber(res.data.freeKton.toString()),
+        ring: BigNumber(0),
+        kton: BigNumber(0),
       });
     },
     [apiPromise]
@@ -126,6 +130,9 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     const parseAccounts = async () => {
+      if (!apiPromise) {
+        return;
+      }
       const customAccounts: CustomInjectedAccountWithMeta[] = [];
 
       const accounts = injectedAccountsRef.current;
@@ -249,14 +256,55 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const onInitMigration = useCallback(
-    (from: string, to: string): Promise<boolean> => {
-      console.log("source account======", from);
-      console.log("destination account=======", to);
-      setAccountMigrated(true);
-      return Promise.resolve(true);
+    async (from: string, to: string, callback: (isSuccessful: boolean) => void) => {
+      try {
+        if (!apiPromise || !signer?.signRaw || !specName) {
+          return callback(false);
+        }
+
+        /*remove a digit from the network name such as pangolin2, etc*/
+        const oldChainName = specName.slice(0, -1);
+
+        const { signature } = await signer.signRaw({
+          address: from,
+          type: "bytes",
+          data: `I authorize the migration to ${to}, an unused address on ${specName}. Sign this message to authorize using the Substrate key associated with the account on ${oldChainName} that you wish to migrate.`,
+        });
+
+        console.log("signature======", signature);
+
+        const extrinsic = await apiPromise.tx.accountMigration.migrate(from, to, signature);
+
+        const unsubscription = (await extrinsic.send((result: SubmittableResult) => {
+          console.log(result.toHuman());
+          if (result.isCompleted && result.isFinalized) {
+            setAccountMigrated(true);
+            callback(true);
+          }
+        })) as unknown as UnSubscription;
+      } catch (e) {
+        console.log(e);
+        callback(false);
+      }
     },
-    [apiPromise]
+    [apiPromise, signer, specName]
   );
+
+  useEffect(() => {
+    if (!apiPromise) {
+      return;
+    }
+
+    const getSystemInfo = async () => {
+      const encodedSystem = apiPromise.consts.system.version as unknown as SpVersionRuntimeVersion;
+      const systemInfo = encodedSystem.toJSON() as unknown as SpVersionRuntimeVersion;
+      setSpecName(systemInfo.specName);
+    };
+
+    getSystemInfo().catch((e) => {
+      //ignore
+    });
+  }, [apiPromise]);
 
   return (
     <WalletContext.Provider

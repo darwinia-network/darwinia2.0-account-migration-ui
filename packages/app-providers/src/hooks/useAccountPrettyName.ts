@@ -44,10 +44,10 @@ const useAccountPrettyName = (apiPromise: ApiPromise | undefined) => {
   const getPrettyName = useCallback(
     async (accountAddress: string): Promise<string | undefined> => {
       if (!apiPromise) {
-        return;
+        return Promise.resolve("");
       }
 
-      const queryInfo = async () => {
+      const queryInfo = async (): Promise<string | undefined> => {
         const accountInfo = await apiPromise.derive.accounts.info(accountAddress);
         const { nickname, identity } = accountInfo;
         if (typeof apiPromise.query.identity?.identityOf === "function") {
