@@ -172,6 +172,7 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
           parseData(ledgerInfo, depositsInfo);
         }
       )) as unknown as UnSubscription;
+      console.log("CHANGE THE API");
 
       accountUnsubscription = (await apiPromise.query.accountMigration.accounts(selectedAccount, (data: unknown) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
