@@ -164,15 +164,13 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
         }
       )) as unknown as UnSubscription;
 
-      //TODO change the API to apiPromise.query.accountMigration.deposits and the account address to selectedAccount
-      depositsUnsubscription = (await apiPromise.query.deposit.deposits(
-        "0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac",
-        (deposits: Option<Vec<DepositEncoded>>) => {
-          depositsInfo = deposits;
+      depositsUnsubscription = (await apiPromise.query.accountMigration.deposits(
+        selectedAccount,
+        (depositsOptions: Option<Vec<DepositEncoded>>) => {
+          depositsInfo = depositsOptions;
           parseData(ledgerInfo, depositsInfo);
         }
       )) as unknown as UnSubscription;
-      console.log("CHANGE THE API");
 
       accountUnsubscription = (await apiPromise.query.accountMigration.accounts(selectedAccount, (data: unknown) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
