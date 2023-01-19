@@ -164,7 +164,7 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
         }
       )) as unknown as UnSubscription;
 
-      //TODO change the API
+      //TODO change the API to apiPromise.query.accountMigration.deposits and the account address to selectedAccount
       depositsUnsubscription = (await apiPromise.query.deposit.deposits(
         "0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac",
         (deposits: Option<Vec<DepositEncoded>>) => {
