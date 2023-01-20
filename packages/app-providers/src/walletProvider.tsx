@@ -257,6 +257,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
   const onInitMigration = useCallback(
     async (from: string, to: string, callback: (isSuccessful: boolean) => void) => {
+      let unSubscription: UnSubscription;
       try {
         if (!apiPromise || !signer?.signRaw || !specName) {
           return callback(false);
@@ -275,7 +276,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
         const extrinsic = await apiPromise.tx.accountMigration.migrate(from, to, signature);
 
-        const unsubscription = (await extrinsic.send((result: SubmittableResult) => {
+        unSubscription = (await extrinsic.send((result: SubmittableResult) => {
           console.log(result.toHuman());
           if (result.isCompleted && result.isFinalized) {
             setAccountMigrated(true);
@@ -286,6 +287,12 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         console.log(e);
         callback(false);
       }
+
+      return () => {
+        if (unSubscription) {
+          unSubscription();
+        }
+      };
     },
     [apiPromise, signer, specName]
   );
