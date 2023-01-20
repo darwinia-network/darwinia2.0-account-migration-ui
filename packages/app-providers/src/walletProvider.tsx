@@ -265,7 +265,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         /*remove a digit from the network name such as pangolin2, etc*/
         const oldChainName = specName.slice(0, -1);
 
-        const message = `I authorize the migration to ${to}, an unused address on ${specName}. Sign this message to authorize using the Substrate key associated with the account on ${oldChainName} that you wish to migrate.`;
+        const message = `I authorize the migration to ${to.toLowerCase()}, an unused address on ${specName}. Sign this message to authorize using the Substrate key associated with the account on ${oldChainName} that you wish to migrate.`;
 
         const { signature } = await signer.signRaw({
           address: from,
