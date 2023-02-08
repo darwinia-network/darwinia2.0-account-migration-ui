@@ -4,7 +4,11 @@ import Identicon from "@polkadot/react-identicon";
 import MigrationSummary from "../MigrationSummary";
 import MigrationForm from "../MigrationForm";
 
-const MigrationProcess = () => {
+interface Props {
+  isCheckingMigrationStatus: boolean;
+}
+
+const MigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
   const { selectedAccount } = useWallet();
   const { t } = useAppTranslation();
 
@@ -38,7 +42,7 @@ const MigrationProcess = () => {
           <div>{selectedAccount?.address}</div>
         </div>
       </div>
-      <MigrationSummary />
+      <MigrationSummary isCheckingMigrationStatus={isCheckingMigrationStatus} />
       <MigrationForm />
       <div className={"flex flex-col lg:flex-row justify-between"}>
         {footerLinks.map((item, index) => {

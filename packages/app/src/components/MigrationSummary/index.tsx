@@ -4,19 +4,22 @@ import ringIcon from "../../assets/images/ring.svg";
 import ktonIcon from "../../assets/images/kton.svg";
 import helpIcon from "../../assets/images/help.svg";
 import { Tooltip } from "@darwinia/ui";
-import { prettifyNumber } from "@darwinia/app-utils";
+import { prettifyNumber, prettifyTooltipNumber } from "@darwinia/app-utils";
 import BigNumber from "bignumber.js";
 import { useEffect } from "react";
 
-const MigrationSummary = () => {
+interface Props {
+  isCheckingMigrationStatus: boolean;
+}
+
+const MigrationSummary = ({ isCheckingMigrationStatus }: Props) => {
   const { t } = useAppTranslation();
   const { selectedNetwork, setTransactionStatus } = useWallet();
   const { migrationAssetDistribution, isLoadingLedger } = useStorage();
-  const precision = 4;
 
   useEffect(() => {
-    setTransactionStatus(!!isLoadingLedger);
-  }, [isLoadingLedger]);
+    setTransactionStatus(!!isLoadingLedger || isCheckingMigrationStatus);
+  }, [isLoadingLedger, isCheckingMigrationStatus]);
 
   return (
     <div className={"card flex gap-[20px] flex-col"}>
@@ -34,37 +37,53 @@ const MigrationSummary = () => {
             <div className={"flex justify-between"}>
               <div>{t(localeKeys.transferable)}</div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.ring.transferable ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={
+                    <div>{prettifyTooltipNumber(migrationAssetDistribution?.ring.transferable ?? BigNumber(0))}</div>
+                  }
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.ring.transferable ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
             <div className={"flex justify-between"}>
               <div>{t(localeKeys.deposit)}</div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.ring.deposit ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={<div>{prettifyTooltipNumber(migrationAssetDistribution?.ring.deposit ?? BigNumber(0))}</div>}
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.ring.deposit ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
             <div className={"flex justify-between"}>
               <div>{t(localeKeys.bonded)}</div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.ring.bonded ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={<div>{prettifyTooltipNumber(migrationAssetDistribution?.ring.bonded ?? BigNumber(0))}</div>}
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.ring.bonded ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
             <div className={"flex justify-between"}>
               <div>{t(localeKeys.unbonded)}</div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.ring.unbonded ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={
+                    <div>{prettifyTooltipNumber(migrationAssetDistribution?.ring.unbonded ?? BigNumber(0))}</div>
+                  }
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.ring.unbonded ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
             <div className={"flex justify-between"}>
@@ -75,10 +94,15 @@ const MigrationSummary = () => {
                 </Tooltip>
               </div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.ring.unbonding ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={
+                    <div>{prettifyTooltipNumber(migrationAssetDistribution?.ring.unbonding ?? BigNumber(0))}</div>
+                  }
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.ring.unbonding ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
             <div className={"flex justify-between"}>
@@ -89,10 +113,13 @@ const MigrationSummary = () => {
                 </Tooltip>
               </div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.ring.vested ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={<div>{prettifyTooltipNumber(migrationAssetDistribution?.ring.vested ?? BigNumber(0))}</div>}
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.ring.vested ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
           </div>
@@ -110,28 +137,41 @@ const MigrationSummary = () => {
             <div className={"flex justify-between"}>
               <div>{t(localeKeys.transferable)}</div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.kton.transferable ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={
+                    <div>{prettifyTooltipNumber(migrationAssetDistribution?.kton.transferable ?? BigNumber(0))}</div>
+                  }
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.kton.transferable ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
             <div className={"flex justify-between"}>
               <div>{t(localeKeys.bonded)}</div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.kton.bonded ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={<div>{prettifyTooltipNumber(migrationAssetDistribution?.kton.bonded ?? BigNumber(0))}</div>}
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.kton.bonded ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
             <div className={"flex justify-between"}>
               <div>{t(localeKeys.unbonded)}</div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.kton.unbonded ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={
+                    <div>{prettifyTooltipNumber(migrationAssetDistribution?.kton.unbonded ?? BigNumber(0))}</div>
+                  }
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.kton.unbonded ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
             <div className={"flex justify-between"}>
@@ -142,10 +182,15 @@ const MigrationSummary = () => {
                 </Tooltip>
               </div>
               <div>
-                {prettifyNumber({
-                  number: migrationAssetDistribution?.kton.unbonding ?? BigNumber(0),
-                  precision: precision,
-                })}
+                <Tooltip
+                  message={
+                    <div>{prettifyTooltipNumber(migrationAssetDistribution?.kton.unbonding ?? BigNumber(0))}</div>
+                  }
+                >
+                  {prettifyNumber({
+                    number: migrationAssetDistribution?.kton.unbonding ?? BigNumber(0),
+                  })}
+                </Tooltip>
               </div>
             </div>
           </div>

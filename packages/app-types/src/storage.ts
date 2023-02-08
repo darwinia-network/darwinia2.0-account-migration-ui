@@ -22,4 +22,7 @@ export interface AssetBalance {
 export interface StorageCtx {
   migrationAssetDistribution: AssetDistribution | undefined;
   isLoadingLedger: boolean | undefined;
+  isLoadingMigratedLedger: boolean | undefined;
+  retrieveMigratedAsset: (sourceAccountId: string, parentBlockHash: string) => void;
+  migratedAssetDistribution: AssetDistribution | undefined;
 }

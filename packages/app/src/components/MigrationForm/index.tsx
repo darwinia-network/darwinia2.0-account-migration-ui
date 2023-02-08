@@ -14,6 +14,19 @@ interface Tip {
   title: string;
 }
 
+interface MigrationQuery {
+  accountAddress: string;
+}
+
+export interface DestinationAccount {
+  id: string;
+  source: string;
+}
+
+interface MigrationResult {
+  destinationAccount?: DestinationAccount;
+}
+
 const MigrationForm = () => {
   const { t } = useAppTranslation();
   const [destinationAddress, setDestinationAddress] = useState<string>("");
@@ -29,7 +42,7 @@ const MigrationForm = () => {
     setDestinationAddress(e.target.value);
   };
 
-  const { data: migrationData } = useQuery<{ id: number }, { accountAddress: string }>(
+  const { data: migrationData, loading: isCheckingDestinationStatus } = useQuery<MigrationResult, MigrationQuery>(
     FIND_MIGRATION_BY_DESTINATION_ADDRESS,
     {
       variables: {
@@ -37,6 +50,8 @@ const MigrationForm = () => {
       },
     }
   );
+
+  console.log("migrationData=====🚆", migrationData, isCheckingDestinationStatus);
 
   const attentionTips: Tip[] = [
     {
@@ -66,10 +81,10 @@ const MigrationForm = () => {
       setAddressError(t(localeKeys.evmAccountIncorrect));
       return;
     }
-    /*if (address.length === 1) {
-      setAddressError(t(localeKeys.evemAccountAlreadyUsedInMigration));
+    if (migrationData?.destinationAccount) {
+      setAddressError(t(localeKeys.evmAccountAlreadyUsedInMigration));
       return;
-    }*/
+    }
     /*if (address.length === 2) {
       setAddressError(t(localeKeys.evmAccountAlreadyUsedInDarwinia1));
       return;
@@ -143,7 +158,11 @@ const MigrationForm = () => {
         </div>
       </div>
       <div className={"text-12"}>{t(localeKeys.migrationFormInfo)}</div>
-      <Button onClick={onMigrate} disabled={destinationAddress.trim().length === 0} className={"min-w-[150px]"}>
+      <Button
+        onClick={onMigrate}
+        disabled={destinationAddress.trim().length === 0 || isCheckingDestinationStatus}
+        className={"min-w-[150px]"}
+      >
         {t(localeKeys.migrate)}
       </Button>
       <ModalEnhanced
@@ -177,7 +196,7 @@ const MigrationForm = () => {
         onCancel={onCloseConfirmationModal}
         cancelText={t(localeKeys.cancel)}
         isLoading={isProcessingMigration}
-        isCancellable={false}
+        isCancellable={true}
       >
         <div className={"flex flex-col gap-[20px] pb-[20px] divider border-b"}>
           {/*Origin*/}

@@ -32,7 +32,7 @@ const initialState: WalletCtx = {
   injectedAccounts: undefined,
   selectedNetwork: undefined,
   isLoadingTransaction: undefined,
-  isAccountMigrated: undefined,
+  isAccountMigratedJustNow: undefined,
   changeSelectedNetwork: () => {
     // do nothing
   },
@@ -73,7 +73,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const { getPrettyName } = useAccountPrettyName(apiPromise);
   const DARWINIA_APPS = "darwinia/apps";
   const isKeyringInitialized = useRef<boolean>(false);
-  const [isAccountMigrated, setAccountMigrated] = useState<boolean>(false);
+  const [isAccountMigratedJustNow, setAccountMigratedJustNow] = useState<boolean>(false);
   const [specName, setSpecName] = useState<string>();
 
   const isWalletInstalled = () => {
@@ -251,7 +251,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const setUserSelectedAccount = useCallback((account: CustomInjectedAccountWithMeta) => {
-    setAccountMigrated(false);
+    setAccountMigratedJustNow(false);
     setSelectedAccount(account);
   }, []);
 
@@ -279,7 +279,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         unSubscription = (await extrinsic.send((result: SubmittableResult) => {
           console.log(result.toHuman());
           if (result.isCompleted && result.isFinalized) {
-            setAccountMigrated(true);
+            setAccountMigratedJustNow(true);
             callback(true);
           }
         })) as unknown as UnSubscription;
@@ -321,7 +321,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         setTransactionStatus,
         disconnectWallet,
         isWalletConnected,
-        isAccountMigrated,
+        isAccountMigratedJustNow,
         selectedAccount,
         injectedAccounts,
         isRequestingWalletConnection,

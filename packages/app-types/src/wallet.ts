@@ -66,7 +66,7 @@ export interface WalletCtx {
   setTransactionStatus: (value: boolean) => void;
   isLoadingTransaction: boolean | undefined;
   onInitMigration: (from: string, to: string, callback: (isSuccessful: boolean) => void) => void;
-  isAccountMigrated: boolean | undefined;
+  isAccountMigratedJustNow: boolean | undefined;
 }
 
 export interface SpVersionRuntimeVersion extends Struct {

@@ -28,7 +28,7 @@ export const localeKeys = {
   darwiniaDataMigration: "darwiniaDataMigration",
   migrateToEVMMessage: "migrateToEVMMessage",
   evmAccountAlreadyUsedInDarwinia1: "evmAccountAlreadyUsedInDarwinia1",
-  evemAccountAlreadyUsedInMigration: "evemAccountAlreadyUsedInMigration",
+  evmAccountAlreadyUsedInMigration: "evmAccountAlreadyUsedInMigration",
   evmAccountIncorrect: "evmAccountIncorrect",
   attention: "attention",
   agreeAndContinue: "agreeAndContinue",
@@ -51,4 +51,5 @@ export const localeKeys = {
   migrateTo: "migrateTo",
   value: "value",
   deposit: "deposit",
+  success: "success",
 };

@@ -2,14 +2,17 @@ import { createContext, PropsWithChildren, useContext, useEffect, useRef, useSta
 import { StorageCtx } from "@darwinia/app-types";
 import { useWallet } from "./walletProvider";
 import { WsProvider, ApiPromise } from "@polkadot/api";
-import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 import useLedger from "./hooks/useLedger";
-import BigNumber from "bignumber.js";
 import { keyring } from "@polkadot/ui-keyring";
 
 const initialState: StorageCtx = {
   migrationAssetDistribution: undefined,
   isLoadingLedger: undefined,
+  isLoadingMigratedLedger: false,
+  retrieveMigratedAsset: (sourceAccountId: string, parentBlockHash: string) => {
+    //ignore
+  },
+  migratedAssetDistribution: undefined,
 };
 
 export type UnSubscription = () => void;
@@ -20,7 +23,13 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
   const { selectedNetwork, selectedAccount } = useWallet();
   const [apiPromise, setApiPromise] = useState<ApiPromise>();
 
-  const { isLoadingLedger, stakedAssetDistribution: migrationAssetDistribution } = useLedger({
+  const {
+    isLoadingLedger,
+    stakedAssetDistribution: migrationAssetDistribution,
+    isLoadingMigratedLedger,
+    retrieveMigratedAsset,
+    migratedAssetDistribution,
+  } = useLedger({
     apiPromise,
     selectedAccount: selectedAccount?.address,
   });
@@ -76,6 +85,9 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
       value={{
         migrationAssetDistribution,
         isLoadingLedger,
+        isLoadingMigratedLedger,
+        retrieveMigratedAsset,
+        migratedAssetDistribution,
       }}
     >
       {children}

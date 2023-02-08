@@ -3,39 +3,6 @@ import { RegistrationJudgement } from "@polkadot/types/interfaces";
 import { AccountId, Balance, BlockNumber } from "@polkadot/types/interfaces";
 import BigNumber from "bignumber.js";
 
-export interface PalletIdentityIdentityInfo extends Struct {
-  display?: string;
-  displayParent?: string;
-  email?: string;
-  image?: string;
-  legal?: string;
-  other?: Record<string, string>;
-  parent?: AccountId;
-  pgp?: string;
-  riot?: string;
-  twitter?: string;
-  web?: string;
-}
-
-export interface PalletIdentityRegistration extends Struct {
-  judgements: Vec<RegistrationJudgement>;
-  info: PalletIdentityIdentityInfo;
-}
-
-type StakingLockUnbonding = {
-  amount: Balance;
-  until: BlockNumber;
-};
-
-export type StakingLock = {
-  stakingAmount: Balance;
-  unbondings: StakingLockUnbonding[];
-};
-
-export interface Common extends Struct {
-  readonly amount: Balance;
-}
-
 export interface DarwiniaStakingLedgerEncoded extends Struct {
   stakedRing: u128;
   stakedKton: u128;
