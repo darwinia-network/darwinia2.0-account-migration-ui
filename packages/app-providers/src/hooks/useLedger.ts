@@ -7,12 +7,13 @@ import {
   Deposit,
   DepositEncoded,
   PalletVestingVestingInfo,
+  DarwiniaAccountMigrationAssetAccount,
 } from "@darwinia/app-types";
 import BigNumber from "bignumber.js";
 import { ApiPromise } from "@polkadot/api";
 import { UnSubscription } from "../storageProvider";
 import useBlock from "./useBlock";
-import { Vec, Option } from "@polkadot/types";
+import { Vec, Option, u128, Struct } from "@polkadot/types";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 
 interface Params {
@@ -56,6 +57,18 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
         if (isInitialMigratedDataLoad.current && isDataAtPoint) {
           isInitialMigratedDataLoad.current = false;
           setLoadingMigratedLedger(true);
+        }
+
+        let transferableKTON = BigNumber(0);
+        const ktonAccountInfo: Option<DarwiniaAccountMigrationAssetAccount> =
+          (await api.query.accountMigration.ktonAccounts(
+            accountId
+          )) as unknown as Option<DarwiniaAccountMigrationAssetAccount>;
+        if (ktonAccountInfo.isSome) {
+          const unwrappedKTONAccount = ktonAccountInfo.unwrap();
+          const decodedKTONAccount = unwrappedKTONAccount.toHuman() as unknown as DarwiniaAccountMigrationAssetAccount;
+          const ktonBalanceString = decodedKTONAccount.balance.toString().replaceAll(",", "");
+          transferableKTON = BigNumber(ktonBalanceString);
         }
 
         const ledgerInfo: Option<DarwiniaStakingLedgerEncoded> = (await api.query.accountMigration.ledgers(
@@ -178,7 +191,7 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
                   vested: vestedAmountRing,
                 },
                 kton: {
-                  transferable: BigNumber(0) /*TODO needs to be updated accordingly*/,
+                  transferable: transferableKTON,
                   bonded: ledgerData.stakedKton,
                   unbonded: unbondedKtonAmount,
                   unbonding: unbondingKtonAmount,
@@ -195,7 +208,7 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
                   vested: vestedAmountRing,
                 },
                 kton: {
-                  transferable: BigNumber(0) /*TODO needs to be updated accordingly*/,
+                  transferable: transferableKTON,
                   bonded: ledgerData.stakedKton,
                   unbonded: unbondedKtonAmount,
                   unbonding: unbondingKtonAmount,
@@ -216,7 +229,7 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
                   vested: vestedAmountRing,
                 },
                 kton: {
-                  transferable: BigNumber(0) /*TODO needs to be updated accordingly*/,
+                  transferable: transferableKTON,
                   bonded: BigNumber(0),
                   unbonded: BigNumber(0),
                   unbonding: BigNumber(0),

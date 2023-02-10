@@ -10,6 +10,7 @@ import {
   AssetBalance,
   SpVersionRuntimeVersion,
   PalletVestingVestingInfo,
+  DarwiniaAccountMigrationAssetAccount,
 } from "@darwinia/app-types";
 import { ApiPromise, WsProvider, SubmittableResult } from "@polkadot/api";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
@@ -119,6 +120,19 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           kton: BigNumber(0),
         });
       }
+
+      let transferableKTON = BigNumber(0);
+      const ktonAccountInfo: Option<DarwiniaAccountMigrationAssetAccount> =
+        (await apiPromise.query.accountMigration.ktonAccounts(
+          accountAddress
+        )) as unknown as Option<DarwiniaAccountMigrationAssetAccount>;
+      if (ktonAccountInfo.isSome) {
+        const unwrappedKTONAccount = ktonAccountInfo.unwrap();
+        const decodedKTONAccount = unwrappedKTONAccount.toHuman() as unknown as DarwiniaAccountMigrationAssetAccount;
+        const ktonBalanceString = decodedKTONAccount.balance.toString().replaceAll(",", "");
+        transferableKTON = BigNumber(ktonBalanceString);
+      }
+
       /*We don't need to listen to account changes since the chain won't be producing blocks
        * by that time */
       const response = await apiPromise.query.accountMigration.accounts(accountAddress);
@@ -148,7 +162,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
         return Promise.resolve({
           ring: totalBalance.minus(vestedAmountRing), // this is the transferable amount
-          kton: BigNumber(0) /*TODO needs to be updated accordingly*/,
+          kton: transferableKTON,
         });
       }
 

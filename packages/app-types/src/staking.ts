@@ -41,3 +41,7 @@ export interface PalletVestingVestingInfo extends Struct {
   readonly perBlock: u128;
   readonly startingBlock: u32;
 }
+
+export interface DarwiniaAccountMigrationAssetAccount extends Struct {
+  balance: u128;
+}

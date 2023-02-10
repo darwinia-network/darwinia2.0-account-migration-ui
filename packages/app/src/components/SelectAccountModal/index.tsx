@@ -68,17 +68,17 @@ const SelectAccountModal = forwardRef<SelectAccountModalRef>((props, ref) => {
                         number: account.balance.ring,
                         shouldFormatToEther: true,
                       })}
-                    </Tooltip>{" "}
+                    </Tooltip>
                     {selectedNetwork?.ring.symbol.toUpperCase()}
                   </div>
                   <div>|</div>
-                  <div className={"flex"}>
+                  <div className={"flex gap-[5px]"}>
                     <Tooltip message={<div>{prettifyTooltipNumber(account.balance.kton)}</div>}>
                       {prettifyNumber({
                         number: account.balance.kton,
                         shouldFormatToEther: true,
                       })}
-                    </Tooltip>{" "}
+                    </Tooltip>
                     {selectedNetwork?.kton.symbol.toUpperCase()}
                   </div>
                 </div>
