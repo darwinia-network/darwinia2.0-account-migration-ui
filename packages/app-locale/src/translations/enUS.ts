@@ -37,7 +37,7 @@ const enUs = {
   [localeKeys.iHaveConfirmedIsNewAddress]: `I have confirmed that EVM account is a new address. This account has not been used on-chain.`,
   [localeKeys.iHavePrivateKeys]: `I have the private key for this EVM account. This account is not from any third-party platform.`,
   [localeKeys.evmAccountNotExchange]: `I have confirmed that the EVM account is not an exchange or cloud wallet address.`,
-  [localeKeys.evmAccountSafe]: `This new EVM account is generated from a reputable wallet, such as MetaMask. <a class="link link-primary" href={{link}}>How to create a new account with MetaMask.</a>`,
+  [localeKeys.evmAccountSafe]: `This new EVM account is generated from a reputable wallet, such as MetaMask. <a target='_blank' class="link link-primary" href={{link}}>How to create a new account with MetaMask.</a>`,
   [localeKeys.migrationConfirmation]: "Migration confirmation",
   [localeKeys.fromTheSubstrateAccount]: `From the substrate account ({{name}} 1.0)`,
   [localeKeys.toEVMAccount]: `To the EVM account ({{name}} 2.0)`,
@@ -52,6 +52,9 @@ const enUs = {
   [localeKeys.value]: "Value",
   [localeKeys.deposit]: "Deposit",
   [localeKeys.success]: "Success",
+  [localeKeys.evmAccountNotFree]: "This EVM account is not free",
+  [localeKeys.noTokensToMigrate]: `Selected account has no tokens to migrate`,
+  [localeKeys.installWalletReminder]: `Connection failed. Please install {{walletName}} <a target='_blank' class="link link-primary" href={{downloadURL}}>here</a>.`,
 };
 
 export default enUs;

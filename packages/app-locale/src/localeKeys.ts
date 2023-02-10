@@ -52,4 +52,7 @@ export const localeKeys = {
   value: "value",
   deposit: "deposit",
   success: "success",
+  evmAccountNotFree: "evmAccountNotFree",
+  noTokensToMigrate: "noTokensToMigrate",
+  installWalletReminder: "installWalletReminder",
 };

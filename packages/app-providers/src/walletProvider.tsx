@@ -9,6 +9,7 @@ import {
   CustomInjectedAccountWithMeta,
   AssetBalance,
   SpVersionRuntimeVersion,
+  PalletVestingVestingInfo,
 } from "@darwinia/app-types";
 import { ApiPromise, WsProvider, SubmittableResult } from "@polkadot/api";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
@@ -19,6 +20,7 @@ import { keyring } from "@polkadot/ui-keyring";
 import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 import { UnSubscription } from "./storageProvider";
+import { Option, Vec } from "@polkadot/types";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
@@ -33,6 +35,7 @@ const initialState: WalletCtx = {
   selectedNetwork: undefined,
   isLoadingTransaction: undefined,
   isAccountMigratedJustNow: undefined,
+  walletConfig: undefined,
   changeSelectedNetwork: () => {
     // do nothing
   },
@@ -66,7 +69,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const forcedAccountAddress = useRef<string>();
   const [error, setError] = useState<WalletError | undefined>(undefined);
   const [selectedNetwork, setSelectedNetwork] = useState<ChainConfig>();
-  const [selectedWallet] = useState<SupportedWallet>("MetaMask");
+  const [selectedWallet] = useState<SupportedWallet>("Polkadot JS Extension");
   const [walletConfig, setWalletConfig] = useState<WalletConfig>();
   const [isLoadingTransaction, setLoadingTransaction] = useState<boolean>(false);
   const [apiPromise, setApiPromise] = useState<ApiPromise>();
@@ -118,8 +121,37 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
       }
       /*We don't need to listen to account changes since the chain won't be producing blocks
        * by that time */
-      const res = (await apiPromise.query.accountMigration.accounts(accountAddress)) as FrameSystemAccountInfo;
-      console.log("res=====", res.toHuman());
+      const response = await apiPromise.query.accountMigration.accounts(accountAddress);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const accountInfoOption = response as unknown as Option<FrameSystemAccountInfo>;
+      if (accountInfoOption.isSome) {
+        let vestedAmountRing = BigNumber(0);
+        let totalBalance = BigNumber(0);
+
+        const unwrappedAccountInfo = accountInfoOption.unwrap();
+        const accountInfo = unwrappedAccountInfo.toHuman() as unknown as FrameSystemAccountInfo;
+        const balance = accountInfo.data.free.toString().replaceAll(",", "");
+        totalBalance = BigNumber(balance);
+
+        const vestingInfoOption = (await apiPromise.query.accountMigration.vestings(
+          accountAddress
+        )) as unknown as Option<Vec<PalletVestingVestingInfo>>;
+        if (vestingInfoOption.isSome) {
+          const unwrappedVestingInfo = vestingInfoOption.unwrap();
+          const vestingInfoList = unwrappedVestingInfo.toHuman() as unknown as Vec<PalletVestingVestingInfo>;
+          vestingInfoList.forEach((vesting) => {
+            const lockedAmount = vesting.locked.toString().replaceAll(",", "");
+            vestedAmountRing = vestedAmountRing.plus(lockedAmount);
+          });
+        }
+
+        return Promise.resolve({
+          ring: totalBalance.minus(vestedAmountRing), // this is the transferable amount
+          kton: BigNumber(0) /*TODO needs to be updated accordingly*/,
+        });
+      }
+
       return Promise.resolve({
         ring: BigNumber(0),
         kton: BigNumber(0),
@@ -316,6 +348,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   return (
     <WalletContext.Provider
       value={{
+        walletConfig,
         setSelectedAccount: setUserSelectedAccount,
         isLoadingTransaction,
         setTransactionStatus,

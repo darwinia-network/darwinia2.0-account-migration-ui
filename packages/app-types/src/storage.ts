@@ -25,4 +25,6 @@ export interface StorageCtx {
   isLoadingMigratedLedger: boolean | undefined;
   retrieveMigratedAsset: (sourceAccountId: string, parentBlockHash: string) => void;
   migratedAssetDistribution: AssetDistribution | undefined;
+  checkEVMAccountStatus: (accountId: string) => Promise<void>;
+  isAccountFree: boolean | undefined;
 }

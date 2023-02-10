@@ -2,29 +2,15 @@ import { localeKeys, useAppTranslation } from "@darwinia/app-locale";
 import helpIcon from "../../assets/images/help.svg";
 import { Button, CheckboxGroup, Input, ModalEnhanced, Tooltip } from "@darwinia/ui";
 import { ChangeEvent, useState } from "react";
-import { useWallet } from "@darwinia/app-providers";
+import { useStorage, useWallet } from "@darwinia/app-providers";
 import Identicon from "@polkadot/react-identicon";
 import JazzIcon from "../JazzIcon";
 import { isEthereumAddress } from "@darwinia/app-utils";
-import { FIND_MIGRATION_BY_DESTINATION_ADDRESS } from "@darwinia/app-config";
 import { useQuery } from "@apollo/client";
 
 interface Tip {
   id: number;
   title: string;
-}
-
-interface MigrationQuery {
-  accountAddress: string;
-}
-
-export interface DestinationAccount {
-  id: string;
-  source: string;
-}
-
-interface MigrationResult {
-  destinationAccount?: DestinationAccount;
 }
 
 const MigrationForm = () => {
@@ -35,23 +21,14 @@ const MigrationForm = () => {
   const [addressError, setAddressError] = useState<string>();
   const [checkedTips, setCheckedTips] = useState<Tip[]>([]);
   const { selectedNetwork, selectedAccount, onInitMigration } = useWallet();
+  const { checkEVMAccountStatus, isAccountFree } = useStorage();
   const [isProcessingMigration, setProcessingMigration] = useState<boolean>(false);
 
-  const onDestinationAddressChanged = (e: ChangeEvent<HTMLInputElement>) => {
+  const onDestinationAddressChanged = async (e: ChangeEvent<HTMLInputElement>) => {
     setAddressError(undefined);
     setDestinationAddress(e.target.value);
+    await checkEVMAccountStatus(e.target.value);
   };
-
-  const { data: migrationData, loading: isCheckingDestinationStatus } = useQuery<MigrationResult, MigrationQuery>(
-    FIND_MIGRATION_BY_DESTINATION_ADDRESS,
-    {
-      variables: {
-        accountAddress: destinationAddress,
-      },
-    }
-  );
-
-  console.log("migrationData=====🚆", migrationData, isCheckingDestinationStatus);
 
   const attentionTips: Tip[] = [
     {
@@ -72,7 +49,7 @@ const MigrationForm = () => {
     },
     {
       id: 5,
-      title: t(localeKeys.evmAccountSafe, { link: "https://www.baidu.com" }),
+      title: t(localeKeys.evmAccountSafe, { link: "https://metamask.io/" }),
     },
   ];
 
@@ -81,8 +58,8 @@ const MigrationForm = () => {
       setAddressError(t(localeKeys.evmAccountIncorrect));
       return;
     }
-    if (migrationData?.destinationAccount) {
-      setAddressError(t(localeKeys.evmAccountAlreadyUsedInMigration));
+    if (!isAccountFree) {
+      setAddressError(t(localeKeys.evmAccountNotFree));
       return;
     }
     /*if (address.length === 2) {
@@ -102,6 +79,7 @@ const MigrationForm = () => {
 
   const onCloseAttentionModal = () => {
     setAttentionModalVisibility(false);
+    setCheckedTips([]);
   };
 
   const onTermsAgreeing = () => {
@@ -158,11 +136,7 @@ const MigrationForm = () => {
         </div>
       </div>
       <div className={"text-12"}>{t(localeKeys.migrationFormInfo)}</div>
-      <Button
-        onClick={onMigrate}
-        disabled={destinationAddress.trim().length === 0 || isCheckingDestinationStatus}
-        className={"min-w-[150px]"}
-      >
+      <Button onClick={onMigrate} disabled={destinationAddress.trim().length === 0} className={"min-w-[150px]"}>
         {t(localeKeys.migrate)}
       </Button>
       <ModalEnhanced

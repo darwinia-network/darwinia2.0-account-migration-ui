@@ -31,6 +31,13 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
 
   const { currentBlock } = useBlock(apiPromise);
 
+  useEffect(() => {
+    if (selectedAccount) {
+      setStakedAssetDistribution(undefined);
+      isInitialLoad.current = true;
+    }
+  }, [selectedAccount]);
+
   const getAccountAsset = useCallback(
     (accountId: string, parentBlockHash?: string) => {
       const isDataAtPoint = typeof parentBlockHash !== "undefined";
@@ -196,32 +203,35 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
               });
             }
           } else {
+            // this user never took part in staking
             if (isDataAtPoint) {
+              const transferableRing = totalBalance.gt(0) ? totalBalance.minus(vestedAmountRing) : BigNumber(0);
               setMigratedAssetDistribution({
                 ring: {
-                  transferable: BigNumber(0),
-                  deposit: BigNumber(0),
+                  transferable: transferableRing,
+                  deposit: totalDepositsAmount,
                   bonded: BigNumber(0),
                   unbonded: BigNumber(0),
                   unbonding: BigNumber(0),
-                  vested: BigNumber(0),
+                  vested: vestedAmountRing,
                 },
                 kton: {
-                  transferable: BigNumber(0),
+                  transferable: BigNumber(0) /*TODO needs to be updated accordingly*/,
                   bonded: BigNumber(0),
                   unbonded: BigNumber(0),
                   unbonding: BigNumber(0),
                 },
               });
             } else {
+              const transferableRing = totalBalance.gt(0) ? totalBalance.minus(vestedAmountRing) : BigNumber(0);
               setStakedAssetDistribution({
                 ring: {
-                  transferable: BigNumber(0),
-                  deposit: BigNumber(0),
+                  transferable: transferableRing,
+                  deposit: totalDepositsAmount,
                   bonded: BigNumber(0),
                   unbonded: BigNumber(0),
                   unbonding: BigNumber(0),
-                  vested: BigNumber(0),
+                  vested: vestedAmountRing,
                 },
                 kton: {
                   transferable: BigNumber(0),
@@ -260,7 +270,6 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
               unbonding: BigNumber(0),
             },
           });
-          setLoadingMigratedLedger(false);
         } else {
           setStakedAssetDistribution({
             ring: {
@@ -278,8 +287,8 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
               unbonding: BigNumber(0),
             },
           });
-          setLoadingLedger(false);
         }
+        setLoadingMigratedLedger(false);
 
         // console.log(e);
         //ignore

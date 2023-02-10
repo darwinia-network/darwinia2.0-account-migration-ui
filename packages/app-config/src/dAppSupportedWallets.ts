@@ -1,31 +1,30 @@
-import metaMaskLogo from "./assets/images/metamask-logo.svg";
+import polkadotJSExtensionLogo from "./assets/images/polkadot.png";
 import { WalletConfig } from "@darwinia/app-types";
 
 export const dAppSupportedWallets: WalletConfig[] = [
   {
-    name: "MetaMask",
-    logo: metaMaskLogo,
+    name: "Polkadot JS Extension",
+    logo: polkadotJSExtensionLogo,
     extensions: [
       {
         browser: "Chrome",
-        downloadURL: "https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn",
+        downloadURL: "https://polkadot.js.org/extension/",
       },
       {
         browser: "Firefox",
-        downloadURL: "https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/",
+        downloadURL: "https://polkadot.js.org/extension/",
       },
       {
         browser: "Brave",
-        downloadURL: "https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn",
+        downloadURL: "https://polkadot.js.org/extension/",
       },
       {
         browser: "Edge",
-        downloadURL:
-          "https://microsoftedge.microsoft.com/addons/detail/metamask/ejbalbakoplchlghecdalmeeeajnimhm?hl=en-US",
+        downloadURL: "https://polkadot.js.org/extension/",
       },
       {
         browser: "Opera",
-        downloadURL: "https://addons.opera.com/en-gb/extensions/details/metamask-10/",
+        downloadURL: "https://polkadot.js.org/extension/",
       },
     ],
   },

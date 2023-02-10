@@ -1,10 +1,10 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
-import { ModalEnhanced } from "@darwinia/ui";
+import { ModalEnhanced, Tooltip } from "@darwinia/ui";
 import { localeKeys, useAppTranslation } from "@darwinia/app-locale";
 import { useWallet } from "@darwinia/app-providers";
 import Identicon from "@polkadot/react-identicon";
 import { CustomInjectedAccountWithMeta } from "@darwinia/app-types";
-import { prettifyNumber } from "@darwinia/app-utils";
+import { prettifyNumber, prettifyTooltipNumber } from "@darwinia/app-utils";
 
 export interface SelectAccountModalRef {
   toggle: () => void;
@@ -62,23 +62,23 @@ const SelectAccountModal = forwardRef<SelectAccountModalRef>((props, ref) => {
                 <div className={"text-18-bold"}>{account.prettyName}</div>
                 <div className={"text-14"}>{account.address}</div>
                 <div className={"flex gap-[10px] text-12 text-halfWhite"}>
-                  <div>
-                    {prettifyNumber({
-                      number: account.balance.ring,
-                      precision: 4,
-                      keepTrailingZeros: false,
-                      shouldFormatToEther: true,
-                    })}{" "}
+                  <div className={"flex gap-[5px]"}>
+                    <Tooltip message={<div>{prettifyTooltipNumber(account.balance.ring)}</div>}>
+                      {prettifyNumber({
+                        number: account.balance.ring,
+                        shouldFormatToEther: true,
+                      })}
+                    </Tooltip>{" "}
                     {selectedNetwork?.ring.symbol.toUpperCase()}
                   </div>
                   <div>|</div>
-                  <div>
-                    {prettifyNumber({
-                      number: account.balance.kton,
-                      precision: 4,
-                      keepTrailingZeros: false,
-                      shouldFormatToEther: true,
-                    })}{" "}
+                  <div className={"flex"}>
+                    <Tooltip message={<div>{prettifyTooltipNumber(account.balance.kton)}</div>}>
+                      {prettifyNumber({
+                        number: account.balance.kton,
+                        shouldFormatToEther: true,
+                      })}
+                    </Tooltip>{" "}
                     {selectedNetwork?.kton.symbol.toUpperCase()}
                   </div>
                 </div>
