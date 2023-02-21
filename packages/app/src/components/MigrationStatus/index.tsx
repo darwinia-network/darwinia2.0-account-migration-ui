@@ -7,20 +7,59 @@ import ringIcon from "../../assets/images/ring.svg";
 import ktonIcon from "../../assets/images/kton.svg";
 import helpIcon from "../../assets/images/help.svg";
 import { Tooltip } from "@darwinia/ui";
-import { useWallet } from "@darwinia/app-providers";
+import { useStorage, useWallet } from "@darwinia/app-providers";
+import { AccountMigration } from "../../pages/Migration";
+import { useEffect } from "react";
+import BigNumber from "bignumber.js";
+import {
+  copyToClipboard,
+  formatTimeInUTC,
+  prettifyNumber,
+  prettifyTooltipNumber,
+  toTimeAgo,
+} from "@darwinia/app-utils";
 
-const MigrationStatus = () => {
+interface Props {
+  accountMigration?: AccountMigration;
+}
+
+const MigrationStatus = ({ accountMigration }: Props) => {
   const { t } = useAppTranslation();
-  const { selectedNetwork } = useWallet();
+  const { selectedNetwork, setTransactionStatus } = useWallet();
+  const { retrieveMigratedAsset, migratedAssetDistribution, isLoadingMigratedLedger } = useStorage();
+
+  useEffect(() => {
+    setTransactionStatus(!!isLoadingMigratedLedger);
+  }, [isLoadingMigratedLedger]);
+
+  useEffect(() => {
+    if (accountMigration) {
+      retrieveMigratedAsset(accountMigration.id, accountMigration.parentHash);
+    }
+  }, [accountMigration]);
+
   const getRingTooltipMessage = () => {
     return (
       <div className={"flex gap-[10px] text-12 flex-col"}>
-        <div>{t(localeKeys.transferable)}: 2,174.973</div>
-        <div>{t(localeKeys.locked)}: 0.000</div>
-        <div>{t(localeKeys.bonded)}: 0.000</div>
-        <div>{t(localeKeys.unbonded)}: 0.000</div>
-        <div>{t(localeKeys.unbonding)}: 0.000</div>
-        <div>{t(localeKeys.vested)}: 0.000</div>
+        <div>
+          {t(localeKeys.transferable)}:{" "}
+          {prettifyTooltipNumber(migratedAssetDistribution?.ring.transferable ?? BigNumber(0))}
+        </div>
+        <div>
+          {t(localeKeys.deposit)}: {prettifyTooltipNumber(migratedAssetDistribution?.ring.deposit ?? BigNumber(0))}
+        </div>
+        <div>
+          {t(localeKeys.bonded)}: {prettifyTooltipNumber(migratedAssetDistribution?.ring.bonded ?? BigNumber(0))}
+        </div>
+        <div>
+          {t(localeKeys.unbonded)}: {prettifyTooltipNumber(migratedAssetDistribution?.ring.unbonded ?? BigNumber(0))}
+        </div>
+        <div>
+          {t(localeKeys.unbonding)}: {prettifyTooltipNumber(migratedAssetDistribution?.ring.unbonding ?? BigNumber(0))}
+        </div>
+        <div>
+          {t(localeKeys.vested)}: {prettifyTooltipNumber(migratedAssetDistribution?.ring.vested ?? BigNumber(0))}
+        </div>
       </div>
     );
   };
@@ -28,13 +67,41 @@ const MigrationStatus = () => {
   const getKtonTooltipMessage = () => {
     return (
       <div className={"flex gap-[10px] text-12 flex-col"}>
-        <div>{t(localeKeys.transferable)}: 2,174.973</div>
-        <div>{t(localeKeys.bonded)}: 0.000</div>
-        <div>{t(localeKeys.unbonded)}: 0.000</div>
-        <div>{t(localeKeys.unbonding)}: 0.000</div>
+        <div>
+          {t(localeKeys.transferable)}:{" "}
+          {prettifyTooltipNumber(migratedAssetDistribution?.kton.transferable ?? BigNumber(0))}
+        </div>
+        <div>
+          {t(localeKeys.bonded)}: {prettifyTooltipNumber(migratedAssetDistribution?.kton.bonded ?? BigNumber(0))}
+        </div>
+        <div>
+          {t(localeKeys.unbonded)}: {prettifyTooltipNumber(migratedAssetDistribution?.kton.unbonded ?? BigNumber(0))}
+        </div>
+        <div>
+          {t(localeKeys.unbonding)}: {prettifyTooltipNumber(migratedAssetDistribution?.kton.unbonding ?? BigNumber(0))}
+        </div>
       </div>
     );
   };
+
+  const totalRING =
+    migratedAssetDistribution?.ring.bonded
+      .plus(migratedAssetDistribution?.ring.deposit ?? BigNumber(0))
+      .plus(migratedAssetDistribution?.ring.transferable)
+      .plus(migratedAssetDistribution?.ring.unbonded)
+      .plus(migratedAssetDistribution?.ring.unbonding)
+      .plus(migratedAssetDistribution?.ring.vested ?? BigNumber(0)) ?? BigNumber(0);
+
+  const totalKTON =
+    migratedAssetDistribution?.kton.bonded
+      .plus(migratedAssetDistribution?.kton.transferable)
+      .plus(migratedAssetDistribution?.ring.unbonded)
+      .plus(migratedAssetDistribution?.ring.unbonding) ?? BigNumber(0);
+
+  const onCopyTransactionHash = () => {
+    copyToClipboard(accountMigration?.transactionHash ?? "");
+  };
+
   return (
     <div className={"flex flex-col gap-[20px]"}>
       <div className={"flex flex-col gap-[20px]"}>
@@ -47,7 +114,7 @@ const MigrationStatus = () => {
           <div
             dangerouslySetInnerHTML={{
               __html: t(localeKeys.whereNextAfterMigration, {
-                link: "https://www.baidu.com",
+                link: "https://www.staking.darwinia.network",
               }),
             }}
           />
@@ -58,24 +125,33 @@ const MigrationStatus = () => {
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.status)}</div>
           <div className={"flex-1 flex gap-[10px] items-center"}>
             <img className={"w-[18px] shrink-0"} src={successIcon} alt="image" />
-            <div className={"text-success"}>Success</div>
+            <div className={"text-success"}>{t(localeKeys.success)}</div>
           </div>
         </div>
         <div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.transactionHash)}</div>
           <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis"}>
-            <div className={"text-primary text-14-bold"}>
-              0x433dd33c63a3f8a4a7f7483fe33b15a7963665d33c1ee60ba70075290d43cc87
-            </div>
-            <img className={"w-[16px] shrink-0 clickable"} src={copyIcon} alt="image" />
+            <div className={"text-primary text-14-bold"}>{accountMigration?.transactionHash}</div>
+            <img
+              onClick={() => {
+                onCopyTransactionHash();
+              }}
+              className={"w-[16px] shrink-0 clickable"}
+              src={copyIcon}
+              alt="image"
+            />
           </div>
         </div>
         <div className={"flex justify-between py-[14px] divider "}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.timestamp)}</div>
-          <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis"}>
-            <img className={"w-[18px] shrink-0"} src={clockIcon} alt="image" />
-            <div>1 hrs 23 mins ago (Mar-24-2022 09:23:14 AM +UTC)</div>
-          </div>
+          {accountMigration?.blockTime && (
+            <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis"}>
+              <img className={"w-[18px] shrink-0"} src={clockIcon} alt="image" />
+              <div>
+                {toTimeAgo(accountMigration?.blockTime)} ({formatTimeInUTC(accountMigration?.blockTime)})
+              </div>
+            </div>
+          )}
         </div>
 
         <div className={"divider border-b"} />
@@ -83,13 +159,13 @@ const MigrationStatus = () => {
         <div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.migrateFrom)}</div>
           <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis text-primary text-14-bold"}>
-            <div>2tJaxND51vBbPwUDHuhVzndY4MeohvvHvn3D9uDejYNin73S </div>
+            <div>{accountMigration?.id}</div>
           </div>
         </div>
         <div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.migrateTo)}</div>
           <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis text-primary text-14-bold"}>
-            <div>0xcb515340b4889807de6bb15403e9403680dc7302</div>
+            <div>{accountMigration?.destination}</div>
           </div>
         </div>
 
@@ -98,14 +174,28 @@ const MigrationStatus = () => {
           <div className={"flex-1 flex flex-col gap-[10px] flex-ellipsis"}>
             <div className={"flex gap-[10px] items-center"}>
               <img className={"w-[18px] shrink-0"} src={ringIcon} alt="image" />
-              <div>16,331.629 {selectedNetwork?.ring.symbol.toUpperCase()}</div>
+              <div className={"flex gap-[10px] items-center"}>
+                <Tooltip message={prettifyTooltipNumber(totalRING)}>
+                  {prettifyNumber({
+                    number: totalRING,
+                  })}
+                </Tooltip>
+                {selectedNetwork?.ring.symbol.toUpperCase()}
+              </div>
               <Tooltip className={"shrink-0"} message={getRingTooltipMessage()}>
                 <img className={"w-[16px] shrink-0 clickable"} src={helpIcon} alt="image" />
               </Tooltip>
             </div>
             <div className={"flex gap-[10px] items-center"}>
               <img className={"w-[18px] shrink-0"} src={ktonIcon} alt="image" />
-              <div>16,331.629 {selectedNetwork?.kton.symbol.toUpperCase()}</div>
+              <div className={"flex gap-[10px] items-center"}>
+                <Tooltip message={prettifyTooltipNumber(totalKTON)}>
+                  {prettifyNumber({
+                    number: totalKTON,
+                  })}
+                </Tooltip>
+                {selectedNetwork?.kton.symbol.toUpperCase()}
+              </div>
               <Tooltip className={"shrink-0"} message={getKtonTooltipMessage()}>
                 <img className={"w-[16px] shrink-0 clickable"} src={helpIcon} alt="image" />
               </Tooltip>

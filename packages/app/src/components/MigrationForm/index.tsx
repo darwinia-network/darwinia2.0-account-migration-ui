@@ -1,10 +1,12 @@
 import { localeKeys, useAppTranslation } from "@darwinia/app-locale";
 import helpIcon from "../../assets/images/help.svg";
-import { Button, CheckboxGroup, CheckboxItem, Input, ModalEnhanced, Tooltip } from "@darwinia/ui";
+import { Button, CheckboxGroup, Input, ModalEnhanced, Tooltip } from "@darwinia/ui";
 import { ChangeEvent, useState } from "react";
-import { useWallet } from "@darwinia/app-providers";
+import { useStorage, useWallet } from "@darwinia/app-providers";
 import Identicon from "@polkadot/react-identicon";
 import JazzIcon from "../JazzIcon";
+import { isEthereumAddress } from "@darwinia/app-utils";
+import { useQuery } from "@apollo/client";
 
 interface Tip {
   id: number;
@@ -19,11 +21,13 @@ const MigrationForm = () => {
   const [addressError, setAddressError] = useState<string>();
   const [checkedTips, setCheckedTips] = useState<Tip[]>([]);
   const { selectedNetwork, selectedAccount, onInitMigration } = useWallet();
+  const { checkEVMAccountStatus, isAccountFree } = useStorage();
   const [isProcessingMigration, setProcessingMigration] = useState<boolean>(false);
 
-  const onDestinationAddressChanged = (e: ChangeEvent<HTMLInputElement>) => {
+  const onDestinationAddressChanged = async (e: ChangeEvent<HTMLInputElement>) => {
     setAddressError(undefined);
     setDestinationAddress(e.target.value);
+    await checkEVMAccountStatus(e.target.value);
   };
 
   const attentionTips: Tip[] = [
@@ -45,19 +49,19 @@ const MigrationForm = () => {
     },
     {
       id: 5,
-      title: t(localeKeys.evmAccountSafe, { link: "https://www.baidu.com" }),
+      title: t(localeKeys.evmAccountSafe, { link: "https://metamask.io/" }),
     },
   ];
 
   const onMigrate = () => {
-    if (!destinationAddress.startsWith("0x")) {
+    if (!isEthereumAddress(destinationAddress)) {
       setAddressError(t(localeKeys.evmAccountIncorrect));
       return;
     }
-    /*if (address.length === 1) {
-      setAddressError(t(localeKeys.evemAccountAlreadyUsedInMigration));
+    if (!isAccountFree) {
+      setAddressError(t(localeKeys.evmAccountNotFree));
       return;
-    }*/
+    }
     /*if (address.length === 2) {
       setAddressError(t(localeKeys.evmAccountAlreadyUsedInDarwinia1));
       return;
@@ -75,6 +79,7 @@ const MigrationForm = () => {
 
   const onCloseAttentionModal = () => {
     setAttentionModalVisibility(false);
+    setCheckedTips([]);
   };
 
   const onTermsAgreeing = () => {
@@ -99,8 +104,9 @@ const MigrationForm = () => {
     }
     try {
       setProcessingMigration(true);
-      const response = await onInitMigration(selectedAccount.address, destinationAddress);
-      setProcessingMigration(false);
+      onInitMigration(selectedAccount.address, destinationAddress, (isSuccessful) => {
+        setProcessingMigration(isSuccessful);
+      });
     } catch (e) {
       setProcessingMigration(false);
     }
@@ -164,7 +170,7 @@ const MigrationForm = () => {
         onCancel={onCloseConfirmationModal}
         cancelText={t(localeKeys.cancel)}
         isLoading={isProcessingMigration}
-        isCancellable={false}
+        isCancellable={true}
       >
         <div className={"flex flex-col gap-[20px] pb-[20px] divider border-b"}>
           {/*Origin*/}

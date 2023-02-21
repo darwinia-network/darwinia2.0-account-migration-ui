@@ -8,8 +8,11 @@ import {
   WalletConfig,
   CustomInjectedAccountWithMeta,
   AssetBalance,
+  SpVersionRuntimeVersion,
+  PalletVestingVestingInfo,
+  DarwiniaAccountMigrationAssetAccount,
 } from "@darwinia/app-types";
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise, WsProvider, SubmittableResult } from "@polkadot/api";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { Signer } from "@polkadot/api/types";
 import useAccountPrettyName from "./hooks/useAccountPrettyName";
@@ -17,6 +20,8 @@ import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { keyring } from "@polkadot/ui-keyring";
 import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
+import { UnSubscription } from "./storageProvider";
+import { Option, Vec } from "@polkadot/types";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
@@ -30,7 +35,8 @@ const initialState: WalletCtx = {
   injectedAccounts: undefined,
   selectedNetwork: undefined,
   isLoadingTransaction: undefined,
-  isAccountMigrated: undefined,
+  isAccountMigratedJustNow: undefined,
+  walletConfig: undefined,
   changeSelectedNetwork: () => {
     // do nothing
   },
@@ -46,7 +52,7 @@ const initialState: WalletCtx = {
   setTransactionStatus: (isLoading: boolean) => {
     //do nothing
   },
-  onInitMigration: (start: string, to: string) => {
+  onInitMigration: (start: string, to: string, callback: (isSuccessful: boolean) => void) => {
     //do nothing
     return Promise.resolve(true);
   },
@@ -64,14 +70,15 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const forcedAccountAddress = useRef<string>();
   const [error, setError] = useState<WalletError | undefined>(undefined);
   const [selectedNetwork, setSelectedNetwork] = useState<ChainConfig>();
-  const [selectedWallet] = useState<SupportedWallet>("MetaMask");
+  const [selectedWallet] = useState<SupportedWallet>("Polkadot JS Extension");
   const [walletConfig, setWalletConfig] = useState<WalletConfig>();
   const [isLoadingTransaction, setLoadingTransaction] = useState<boolean>(false);
   const [apiPromise, setApiPromise] = useState<ApiPromise>();
   const { getPrettyName } = useAccountPrettyName(apiPromise);
   const DARWINIA_APPS = "darwinia/apps";
   const isKeyringInitialized = useRef<boolean>(false);
-  const [isAccountMigrated, setAccountMigrated] = useState<boolean>(false);
+  const [isAccountMigratedJustNow, setAccountMigratedJustNow] = useState<boolean>(false);
+  const [specName, setSpecName] = useState<string>();
 
   const isWalletInstalled = () => {
     const injectedWallet = window.injectedWeb3;
@@ -113,12 +120,55 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           kton: BigNumber(0),
         });
       }
+
+      let transferableKTON = BigNumber(0);
+      const ktonAccountInfo: Option<DarwiniaAccountMigrationAssetAccount> =
+        (await apiPromise.query.accountMigration.ktonAccounts(
+          accountAddress
+        )) as unknown as Option<DarwiniaAccountMigrationAssetAccount>;
+      if (ktonAccountInfo.isSome) {
+        const unwrappedKTONAccount = ktonAccountInfo.unwrap();
+        const decodedKTONAccount = unwrappedKTONAccount.toHuman() as unknown as DarwiniaAccountMigrationAssetAccount;
+        const ktonBalanceString = decodedKTONAccount.balance.toString().replaceAll(",", "");
+        transferableKTON = BigNumber(ktonBalanceString);
+      }
+
       /*We don't need to listen to account changes since the chain won't be producing blocks
        * by that time */
-      const res = (await apiPromise.query.system.account(accountAddress)) as FrameSystemAccountInfo;
+      const response = await apiPromise.query.accountMigration.accounts(accountAddress);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const accountInfoOption = response as unknown as Option<FrameSystemAccountInfo>;
+      if (accountInfoOption.isSome) {
+        let vestedAmountRing = BigNumber(0);
+        let totalBalance = BigNumber(0);
+
+        const unwrappedAccountInfo = accountInfoOption.unwrap();
+        const accountInfo = unwrappedAccountInfo.toHuman() as unknown as FrameSystemAccountInfo;
+        const balance = accountInfo.data.free.toString().replaceAll(",", "");
+        totalBalance = BigNumber(balance);
+
+        const vestingInfoOption = (await apiPromise.query.accountMigration.vestings(
+          accountAddress
+        )) as unknown as Option<Vec<PalletVestingVestingInfo>>;
+        if (vestingInfoOption.isSome) {
+          const unwrappedVestingInfo = vestingInfoOption.unwrap();
+          const vestingInfoList = unwrappedVestingInfo.toHuman() as unknown as Vec<PalletVestingVestingInfo>;
+          vestingInfoList.forEach((vesting) => {
+            const lockedAmount = vesting.locked.toString().replaceAll(",", "");
+            vestedAmountRing = vestedAmountRing.plus(lockedAmount);
+          });
+        }
+
+        return Promise.resolve({
+          ring: totalBalance.minus(vestedAmountRing), // this is the transferable amount
+          kton: transferableKTON,
+        });
+      }
+
       return Promise.resolve({
-        ring: BigNumber(res.data.free.toString()),
-        kton: BigNumber(res.data.freeKton.toString()),
+        ring: BigNumber(0),
+        kton: BigNumber(0),
       });
     },
     [apiPromise]
@@ -126,6 +176,9 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     const parseAccounts = async () => {
+      if (!apiPromise) {
+        return;
+      }
       const customAccounts: CustomInjectedAccountWithMeta[] = [];
 
       const accounts = injectedAccountsRef.current;
@@ -244,29 +297,78 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const setUserSelectedAccount = useCallback((account: CustomInjectedAccountWithMeta) => {
-    setAccountMigrated(false);
+    setAccountMigratedJustNow(false);
     setSelectedAccount(account);
   }, []);
 
   const onInitMigration = useCallback(
-    (from: string, to: string): Promise<boolean> => {
-      console.log("source account======", from);
-      console.log("destination account=======", to);
-      setAccountMigrated(true);
-      return Promise.resolve(true);
+    async (from: string, to: string, callback: (isSuccessful: boolean) => void) => {
+      let unSubscription: UnSubscription;
+      try {
+        if (!apiPromise || !signer?.signRaw || !specName) {
+          return callback(false);
+        }
+
+        /*remove a digit from the network name such as pangolin2, etc*/
+        const oldChainName = specName.slice(0, -1);
+
+        const message = `I authorize the migration to ${to.toLowerCase()}, an unused address on ${specName}. Sign this message to authorize using the Substrate key associated with the account on ${oldChainName} that you wish to migrate.`;
+
+        const { signature } = await signer.signRaw({
+          address: from,
+          type: "bytes",
+          data: message,
+        });
+
+        const extrinsic = await apiPromise.tx.accountMigration.migrate(from, to, signature);
+
+        unSubscription = (await extrinsic.send((result: SubmittableResult) => {
+          console.log(result.toHuman());
+          if (result.isCompleted && result.isFinalized) {
+            setAccountMigratedJustNow(true);
+            callback(true);
+          }
+        })) as unknown as UnSubscription;
+      } catch (e) {
+        console.log(e);
+        callback(false);
+      }
+
+      return () => {
+        if (unSubscription) {
+          unSubscription();
+        }
+      };
     },
-    [apiPromise]
+    [apiPromise, signer, specName]
   );
+
+  useEffect(() => {
+    if (!apiPromise) {
+      return;
+    }
+
+    const getSystemInfo = async () => {
+      const encodedSystem = apiPromise.consts.system.version as unknown as SpVersionRuntimeVersion;
+      const systemInfo = encodedSystem.toJSON() as unknown as SpVersionRuntimeVersion;
+      setSpecName(systemInfo.specName);
+    };
+
+    getSystemInfo().catch((e) => {
+      //ignore
+    });
+  }, [apiPromise]);
 
   return (
     <WalletContext.Provider
       value={{
+        walletConfig,
         setSelectedAccount: setUserSelectedAccount,
         isLoadingTransaction,
         setTransactionStatus,
         disconnectWallet,
         isWalletConnected,
-        isAccountMigrated,
+        isAccountMigratedJustNow,
         selectedAccount,
         injectedAccounts,
         isRequestingWalletConnection,

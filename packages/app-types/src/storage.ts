@@ -1,8 +1,12 @@
 import BigNumber from "bignumber.js";
 
 export interface AssetDetail {
+  deposit?: BigNumber;
+  transferable: BigNumber;
   bonded: BigNumber;
-  totalStakingDeposit?: BigNumber;
+  unbonded: BigNumber;
+  unbonding: BigNumber;
+  vested?: BigNumber;
 }
 
 export interface AssetDistribution {
@@ -18,4 +22,9 @@ export interface AssetBalance {
 export interface StorageCtx {
   migrationAssetDistribution: AssetDistribution | undefined;
   isLoadingLedger: boolean | undefined;
+  isLoadingMigratedLedger: boolean | undefined;
+  retrieveMigratedAsset: (sourceAccountId: string, parentBlockHash: string) => void;
+  migratedAssetDistribution: AssetDistribution | undefined;
+  checkEVMAccountStatus: (accountId: string) => Promise<void>;
+  isAccountFree: boolean | undefined;
 }

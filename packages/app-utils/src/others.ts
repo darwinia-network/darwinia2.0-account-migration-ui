@@ -50,26 +50,33 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
   }
 };
 
+export const prettifyTooltipNumber = (number: BigNumber, shouldFormatToEther = true) => {
+  return prettifyNumber({
+    number,
+    precision: 8,
+    keepTrailingZeros: true,
+    shouldFormatToEther: shouldFormatToEther,
+  });
+};
+
 interface PrettyNumberInput {
   number: BigNumber;
   precision?: number;
   round?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   keepTrailingZeros?: boolean;
   shouldFormatToEther?: boolean;
-  unitDecimals?: number;
 }
 export const prettifyNumber = ({
   number,
-  precision = 0,
+  precision = 4,
   round = BigNumber.ROUND_DOWN,
   keepTrailingZeros = true,
   shouldFormatToEther = true,
-  unitDecimals = 9,
 }: PrettyNumberInput) => {
   if (keepTrailingZeros) {
     // will return a number like 12,345.506000
     if (shouldFormatToEther) {
-      const numberInEther = formatToEther(number.toFixed(), unitDecimals);
+      const numberInEther = formatToEther(number.toFixed());
       return BigNumber(numberInEther).toFormat(precision, round);
     }
     return number.toFormat(precision, round);
@@ -77,16 +84,16 @@ export const prettifyNumber = ({
 
   // will return a number like 12,345.506
   if (shouldFormatToEther) {
-    const numberInEther = formatToEther(number.toFixed(), unitDecimals);
+    const numberInEther = formatToEther(number.toFixed());
     return BigNumber(numberInEther).decimalPlaces(precision, round).toFormat();
   }
   return number.decimalPlaces(precision, round).toFormat();
 };
 
-export const formatToEther = (valueInWei: string, unitDecimals = 9): string => {
-  return ethers.utils.formatUnits(valueInWei, unitDecimals);
+export const formatToEther = (valueInWei: string): string => {
+  return ethers.utils.formatEther(valueInWei);
 };
 
-export const formatToWei = (valueInEther: string, unitDecimals = 9) => {
-  return ethers.utils.parseUnits(valueInEther, unitDecimals);
+export const formatToWei = (valueInEther: string) => {
+  return ethers.utils.parseEther(valueInEther);
 };

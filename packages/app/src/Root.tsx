@@ -5,6 +5,7 @@ import { useWallet } from "@darwinia/app-providers";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { getStore, setStore } from "@darwinia/app-utils";
+import { localeKeys, useAppTranslation } from "@darwinia/app-locale";
 
 const Root = () => {
   const {
@@ -14,10 +15,12 @@ const Root = () => {
     isWalletConnected,
     selectedNetwork,
     isLoadingTransaction,
+    walletConfig,
   } = useWallet();
   const [loading, setLoading] = useState<boolean | undefined>(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useAppTranslation();
 
   useEffect(() => {
     setLoading(isRequestingWalletConnection || isLoadingTransaction);
@@ -26,13 +29,13 @@ const Root = () => {
   const redirect = useCallback(() => {
     setStore("isConnectedToWallet", true);
     if (location.pathname === "/") {
-      navigate(`/staking${location.search}`, { replace: true });
+      navigate(`/migration${location.search}`, { replace: true });
       return;
     }
 
     /* only navigate if the user is supposed to be redirected to another URL */
     if (location.state && location.state.from) {
-      const nextPath = location.state.from.pathname ? location.state.from.pathname : "/staking";
+      const nextPath = location.state.from.pathname ? location.state.from.pathname : "/migration";
       navigate(`${nextPath}${location.search}`, { replace: true });
     }
   }, [location, navigate]);
@@ -46,11 +49,32 @@ const Root = () => {
 
   useEffect(() => {
     if (error) {
-      notification.error({
-        message: <div>{error.message}</div>,
-      });
+      switch (error.code) {
+        case 1: {
+          /*The user has not installed the wallet*/
+          notification.error({
+            message: (
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: t(localeKeys.installWalletReminder, {
+                    walletName: walletConfig?.name,
+                    downloadURL: walletConfig?.extensions[0].downloadURL,
+                  }),
+                }}
+              />
+            ),
+            duration: 10000,
+          });
+          break;
+        }
+        default: {
+          notification.error({
+            message: <div>{error.message}</div>,
+          });
+        }
+      }
     }
-  }, [error]);
+  }, [error, walletConfig]);
 
   //check if it should auto connect to wallet or wait for the user to click the connect wallet button
   useEffect(() => {

@@ -71,7 +71,7 @@ const Header = () => {
             {/*Logo*/}
             {/*Logo will only show on the PC*/}
             <div className={"shrink-0 h-full hidden lg:flex"}>
-              <Link className={"h-full flex"} to={`/staking${location.search}`}>
+              <Link className={"h-full flex"} to={`/migration${location.search}`}>
                 <img className={"self-center w-[146px]"} src={logoIcon} alt="image" />
               </Link>
             </div>

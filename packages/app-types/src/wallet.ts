@@ -1,9 +1,10 @@
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { AssetBalance } from "./storage";
 
-export type SupportedWallet = "MetaMask";
+export type SupportedWallet = "Polkadot JS Extension";
 export type SupportedBrowser = "Chrome" | "Firefox" | "Brave" | "Edge" | "Opera";
 export type ChainName = "Crab" | "Pangolin" | "Darwinia" | "Pangoro";
+import { Struct } from "@polkadot/types";
 
 export interface Token {
   name?: string;
@@ -64,6 +65,11 @@ export interface WalletCtx {
   injectedAccounts: CustomInjectedAccountWithMeta[] | undefined;
   setTransactionStatus: (value: boolean) => void;
   isLoadingTransaction: boolean | undefined;
-  onInitMigration: (from: string, to: string) => Promise<boolean>;
-  isAccountMigrated: boolean | undefined;
+  onInitMigration: (from: string, to: string, callback: (isSuccessful: boolean) => void) => void;
+  isAccountMigratedJustNow: boolean | undefined;
+  walletConfig: WalletConfig | undefined;
+}
+
+export interface SpVersionRuntimeVersion extends Struct {
+  specName: string;
 }
