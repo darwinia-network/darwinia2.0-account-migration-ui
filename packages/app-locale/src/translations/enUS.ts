@@ -9,7 +9,7 @@ const enUs = {
   [localeKeys.darwiniaNetwork]: "Darwinia Network",
   [localeKeys.connectWallet]: "Connect wallet",
   [localeKeys.accountMigrationTitle]: `<span class="link link-primary">Darwinia 2.0</span> Account Migration`,
-  [localeKeys.accountMigrationInfo]: `Use account migration after Darwinia 2.0 upgrade to move your {{ringSymbol}}s and {{ktonSymbol}}s from the <span class="link link-primary">substrate account</span> to your <span class="link link-primary">EVM account</span>. Connect your wallet to view available migrations on your account.`,
+  [localeKeys.accountMigrationInfo]: `Use account migration after Darwinia 2.0 upgrade to move your {{ringSymbol}}s and {{ktonSymbol}}s from the <span class="link link-primary">substrate account</span> to your <span class="link link-primary">EVM account</span>. Connect your wallet to view available migrations on your account.Click <a class="link link-primary" href={{multisigLink}}>here</a> for the migration of multisig accounts.`,
   [localeKeys.bonded]: "Bonded",
   [localeKeys.selectAccount]: "Select account",
   [localeKeys.migrationSummaryInfo]:
@@ -55,6 +55,9 @@ const enUs = {
   [localeKeys.evmAccountNotFree]: "This EVM account is not free",
   [localeKeys.noTokensToMigrate]: `Selected account has no tokens to migrate`,
   [localeKeys.installWalletReminder]: `Connection failed. Please install {{walletName}} <a target='_blank' class="link link-primary" href={{downloadURL}}>here</a>.`,
+  [localeKeys.multisig]: "Multisig",
+  [localeKeys.noMultisigAccounts]: "No data",
+  [localeKeys.addMultisigAccount]: "Add Multisig",
 };
 
 export default enUs;

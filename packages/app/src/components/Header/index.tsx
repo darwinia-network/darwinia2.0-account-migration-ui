@@ -14,7 +14,7 @@ import SelectAccountModal, { SelectAccountModalRef } from "../SelectAccountModal
 const Header = () => {
   const [networkOptionsTrigger, setNetworkOptionsTrigger] = useState<HTMLDivElement | null>(null);
   const { t } = useAppTranslation();
-  const { selectedNetwork, changeSelectedNetwork, selectedAccount, connectWallet, forceSetAccountAddress } =
+  const { selectedNetwork, changeSelectedNetwork, selectedAccount, connectWallet, forceSetAccountAddress, isMultisig } =
     useWallet();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -119,29 +119,33 @@ const Header = () => {
                   </div>
                 );
               })}
-              {selectedAccount ? (
-                <div className={"border-primary border pl-[15px] cursor-pointer"}>
-                  <div className={"flex items-center gap-[10px]"}>
-                    <Identicon size={20} value={selectedAccount?.address} theme={"polkadot"} />
-                    <div
-                      onClick={onShowSelectAccountModal}
-                      className={"select-none pr-[15px] py-[5px] flex gap-[10px]"}
-                    >
-                      <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
-                      <img className={"w-[16px]"} src={caretIcon} alt="image" />
+              {!isMultisig && (
+                <div>
+                  {selectedAccount ? (
+                    <div className={"border-primary border pl-[15px] cursor-pointer"}>
+                      <div className={"flex items-center gap-[10px]"}>
+                        <Identicon size={20} value={selectedAccount?.address} theme={"polkadot"} />
+                        <div
+                          onClick={onShowSelectAccountModal}
+                          className={"select-none pr-[15px] py-[5px] flex gap-[10px]"}
+                        >
+                          <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
+                          <img className={"w-[16px]"} src={caretIcon} alt="image" />
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        connectWallet();
+                      }}
+                      className={"!h-[36px] !px-[15px]"}
+                      btnType={"secondary"}
+                    >
+                      {t(localeKeys.connectWallet)}
+                    </Button>
+                  )}
                 </div>
-              ) : (
-                <Button
-                  onClick={() => {
-                    connectWallet();
-                  }}
-                  className={"!h-[36px] !px-[15px]"}
-                  btnType={"secondary"}
-                >
-                  {t(localeKeys.connectWallet)}
-                </Button>
               )}
             </div>
             {/*network switch toggle*/}

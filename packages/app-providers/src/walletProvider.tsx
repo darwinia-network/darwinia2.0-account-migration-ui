@@ -37,6 +37,7 @@ const initialState: WalletCtx = {
   isLoadingTransaction: undefined,
   isAccountMigratedJustNow: undefined,
   walletConfig: undefined,
+  isMultisig: undefined,
   changeSelectedNetwork: () => {
     // do nothing
   },
@@ -55,6 +56,9 @@ const initialState: WalletCtx = {
   onInitMigration: (start: string, to: string, callback: (isSuccessful: boolean) => void) => {
     //do nothing
     return Promise.resolve(true);
+  },
+  setMultisig: (value: boolean) => {
+    //ignore
   },
 };
 
@@ -79,6 +83,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const isKeyringInitialized = useRef<boolean>(false);
   const [isAccountMigratedJustNow, setAccountMigratedJustNow] = useState<boolean>(false);
   const [specName, setSpecName] = useState<string>();
+  const [isMultisig, setMultisig] = useState<boolean>(false);
 
   const isWalletInstalled = () => {
     const injectedWallet = window.injectedWeb3;
@@ -378,6 +383,8 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         selectedNetwork,
         forceSetAccountAddress,
         onInitMigration,
+        isMultisig,
+        setMultisig,
       }}
     >
       {children}

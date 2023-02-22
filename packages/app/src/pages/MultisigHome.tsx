@@ -6,10 +6,9 @@ import migrationIcon from "../assets/images/migration.svg";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
-const Home = () => {
+const MultisigHome = () => {
   const { t } = useAppTranslation();
-  const { connectWallet, selectedNetwork } = useWallet();
-  const { search: urlParams } = useLocation();
+  const { connectWallet } = useWallet();
 
   return (
     <div className={"flex flex-1 flex-col gap-[20px]"}>
@@ -18,16 +17,6 @@ const Home = () => {
           <img className={"w-[40px]"} src={migrationIcon} alt="migration" />
           <div className={"text-24-bold"} dangerouslySetInnerHTML={{ __html: t(localeKeys.accountMigrationTitle) }} />
         </div>
-        <div
-          className={"text-12-bold leading-[24px]"}
-          dangerouslySetInnerHTML={{
-            __html: t(localeKeys.accountMigrationInfo, {
-              ringSymbol: selectedNetwork?.ring.symbol,
-              ktonSymbol: selectedNetwork?.kton.symbol,
-              multisigLink: `/#/multisig-home${urlParams}`,
-            }),
-          }}
-        />
       </div>
       <div className={"flex flex-col flex-1 bg-blackSecondary items-center justify-center"}>
         <div className={"flex flex-col gap-[20px] items-center max-w-[550px]"}>
@@ -46,4 +35,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default MultisigHome;

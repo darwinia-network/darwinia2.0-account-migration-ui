@@ -68,6 +68,8 @@ export interface WalletCtx {
   onInitMigration: (from: string, to: string, callback: (isSuccessful: boolean) => void) => void;
   isAccountMigratedJustNow: boolean | undefined;
   walletConfig: WalletConfig | undefined;
+  isMultisig: boolean | undefined;
+  setMultisig: (value: boolean) => void;
 }
 
 export interface SpVersionRuntimeVersion extends Struct {
