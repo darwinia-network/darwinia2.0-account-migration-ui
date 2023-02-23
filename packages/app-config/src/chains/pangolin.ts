@@ -1,8 +1,8 @@
 import { ChainConfig } from "@darwinia/app-types";
 
-export const testNet: ChainConfig = {
+export const pangolin: ChainConfig = {
   name: "Pangolin",
-  displayName: "TestNet",
+  displayName: "Pangolin",
   kton: {
     address: "0x0000000000000000000000000000000000000402",
     symbol: "PKTON",
@@ -16,7 +16,7 @@ export const testNet: ChainConfig = {
   chainId: 43,
   substrate: {
     graphQlURL: "https://api.subquery.network/sq/isunaslabs/pangolin2",
-    wssURL: "ws://g1.dev.darwinia.network:20000",
+    wssURL: "wss://pangolin-rpc.darwinia.network/",
     httpsURL: "https://pangolin-rpc.darwinia.network",
   },
 };
