@@ -5,7 +5,7 @@ import MigrationSummary from "../MigrationSummary";
 import MigrationForm from "../MigrationForm";
 import { useEffect, useRef, useState } from "react";
 import BigNumber from "bignumber.js";
-import { Button, notification } from "@darwinia/ui";
+import { Button, ModalEnhanced, notification } from "@darwinia/ui";
 import { CustomInjectedAccountWithMeta } from "@darwinia/app-types";
 import noDataIcon from "../../assets/images/no-data.svg";
 
@@ -20,6 +20,7 @@ const MultisigMigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
   const [showMigrationForm, setShowMigrationForm] = useState<boolean>(false);
   const currentAccount = useRef<CustomInjectedAccountWithMeta>();
   const canShowAccountNotification = useRef(false);
+  const [isAddMultisigModalVisible, setAddMultisigModalVisibility] = useState<boolean>(false);
 
   useEffect(() => {
     if (currentAccount.current?.address !== selectedAccount?.address) {
@@ -73,7 +74,15 @@ const MultisigMigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
   ];
 
   const onShowAddAccountModal = () => {
-    console.log("here we go======");
+    setAddMultisigModalVisibility(true);
+  };
+
+  const onCloseAddAccountModal = () => {
+    setAddMultisigModalVisibility(false);
+  };
+
+  const onCreateMultisigAccount = () => {
+    console.log("create multi sig");
   };
 
   return (
@@ -107,6 +116,17 @@ const MultisigMigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
           );
         })}
       </div>
+      <ModalEnhanced
+        isVisible={isAddMultisigModalVisible}
+        onClose={onCloseAddAccountModal}
+        modalTitle={"twende"}
+        onConfirm={onCreateMultisigAccount}
+        confirmDisabled={true}
+        onCancel={onCloseAddAccountModal}
+        cancelText={t(localeKeys.cancel)}
+      >
+        <div>Hello</div>
+      </ModalEnhanced>
     </div>
   );
 };
