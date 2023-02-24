@@ -268,7 +268,8 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         /* this is the signer that needs to be used when we sign a transaction */
         setSigner(enabledExtensions[0].signer);
         /* this will return a list of all the accounts that are in the Polkadot extension */
-        const accounts = await web3Accounts();
+        const unfilteredAccounts = await web3Accounts();
+        const accounts = unfilteredAccounts.filter((account) => !account.address.startsWith("0x"));
         accounts.forEach((account) => {
           keyring.saveAddress(account.address, account.meta);
         });
