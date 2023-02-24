@@ -5,22 +5,30 @@ import MigrationSummary from "../MigrationSummary";
 import MigrationForm from "../MigrationForm";
 import { useEffect, useRef, useState } from "react";
 import BigNumber from "bignumber.js";
-import { Button, ModalEnhanced, notification } from "@darwinia/ui";
+import { Button, Input, ModalEnhanced, notification, OptionProps, Select, Tooltip } from "@darwinia/ui";
 import { CustomInjectedAccountWithMeta } from "@darwinia/app-types";
 import noDataIcon from "../../assets/images/no-data.svg";
+import helpIcon from "../../assets/images/help.svg";
 
 interface Props {
   isCheckingMigrationStatus: boolean;
 }
 
 const MultisigMigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
-  const { selectedAccount } = useWallet();
+  const { selectedAccount, injectedAccounts } = useWallet();
   const { migrationAssetDistribution, isLoadingLedger } = useStorage();
   const { t } = useAppTranslation();
   const [showMigrationForm, setShowMigrationForm] = useState<boolean>(false);
   const currentAccount = useRef<CustomInjectedAccountWithMeta>();
   const canShowAccountNotification = useRef(false);
   const [isAddMultisigModalVisible, setAddMultisigModalVisibility] = useState<boolean>(false);
+  const accountsOptions: OptionProps[] = (injectedAccounts?.map((item, index) => {
+    return {
+      id: index,
+      value: item.address,
+      label: item.address,
+    };
+  }) ?? []) as unknown as OptionProps[];
 
   useEffect(() => {
     if (currentAccount.current?.address !== selectedAccount?.address) {
@@ -85,6 +93,8 @@ const MultisigMigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
     console.log("create multi sig");
   };
 
+  const accountSelectionChanged = (value: string | string[]) => {};
+
   return (
     <div className={"flex flex-1 flex-col gap-[30px]"}>
       <div className={"flex flex-col flex-1 card gap-[20px]"}>
@@ -119,13 +129,53 @@ const MultisigMigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
       <ModalEnhanced
         isVisible={isAddMultisigModalVisible}
         onClose={onCloseAddAccountModal}
-        modalTitle={"twende"}
+        modalTitle={t(localeKeys.createWallet)}
         onConfirm={onCreateMultisigAccount}
+        confirmText={t(localeKeys.createMultisig)}
         confirmDisabled={true}
         onCancel={onCloseAddAccountModal}
         cancelText={t(localeKeys.cancel)}
       >
-        <div>Hello</div>
+        <div className={"flex flex-col gap-[20px]"}>
+          <div className={"flex flex-col gap-[10px]"}>
+            <div className={"flex items-center gap-[6px]"}>
+              <div>{t(localeKeys.name)}</div>
+              <Tooltip message={"hello"}>
+                <img className={"w-[16px]"} src={helpIcon} alt="image" />
+              </Tooltip>
+            </div>
+            <Input leftIcon={null} />
+          </div>
+
+          <div className={"flex flex-col gap-[10px]"}>
+            <div className={"flex items-center gap-[6px]"}>
+              <div>{t(localeKeys.threshold)}</div>
+              <Tooltip message={"hello"}>
+                <img className={"w-[16px]"} src={helpIcon} alt="image" />
+              </Tooltip>
+            </div>
+            <Input leftIcon={null} />
+          </div>
+
+          <div className={"flex flex-col gap-[10px]"}>
+            <div className={"flex items-center gap-[6px]"}>
+              <div>{t(localeKeys.yourAddress)}</div>
+            </div>
+            <Select onChange={accountSelectionChanged} options={accountsOptions} />
+          </div>
+
+          <div className={"flex flex-col gap-[10px]"}>
+            <div className={"flex items-center gap-[6px]"}>
+              <div>{t(localeKeys.membersAddress)}</div>
+            </div>
+            <div className={"flex gap-[12px]"}>
+              <div className={"flex-1"}>
+                <Input placeholder={t(localeKeys.memberAddress)} leftIcon={null} />
+              </div>
+              <img className={"w-[21px] clickable"} src={helpIcon} alt="image" />
+            </div>
+          </div>
+        </div>
       </ModalEnhanced>
     </div>
   );

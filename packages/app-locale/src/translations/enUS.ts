@@ -58,6 +58,15 @@ const enUs = {
   [localeKeys.multisig]: "Multisig",
   [localeKeys.noMultisigAccounts]: "No data",
   [localeKeys.addMultisigAccount]: "Add Multisig",
+  [localeKeys.addMembers]: "Add Members",
+  [localeKeys.createWallet]: "Create wallet",
+  [localeKeys.name]: "Name",
+  [localeKeys.threshold]: "Threshold",
+  [localeKeys.yourAddress]: "Your address",
+  [localeKeys.memberAddress]: "Member address",
+  [localeKeys.membersAddress]: "Members addresses",
+  [localeKeys.addMembers]: "Add members",
+  [localeKeys.createMultisig]: "Create",
 };
 
 export default enUs;

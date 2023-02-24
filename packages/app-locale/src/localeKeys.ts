@@ -58,10 +58,12 @@ export const localeKeys = {
   multisig: "multisig",
   noMultisigAccounts: "noMultisigAccounts",
   addMultisigAccount: "addMultisigAccount",
-  createWallet: "Create wallet",
+  createWallet: "createWallet",
   name: "Name",
   threshold: "Threshold",
   yourAddress: "yourAddress",
   membersAddress: "membersAddress",
   memberAddress: "memberAddress",
+  addMembers: "addMembers",
+  createMultisig: "createMultisig",
 };
