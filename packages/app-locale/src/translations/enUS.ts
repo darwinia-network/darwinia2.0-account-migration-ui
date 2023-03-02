@@ -57,7 +57,7 @@ const enUs = {
   [localeKeys.installWalletReminder]: `Connection failed. Please install {{walletName}} <a target='_blank' class="link link-primary" href={{downloadURL}}>here</a>.`,
   [localeKeys.multisig]: "Multisig",
   [localeKeys.noMultisigAccounts]: "No data",
-  [localeKeys.addMultisigAccount]: "Add Multisig",
+  [localeKeys.addMultisigAccount]: "Add multisig",
   [localeKeys.addMembers]: "Add Members",
   [localeKeys.createWallet]: "Create wallet",
   [localeKeys.name]: "Name",
@@ -67,6 +67,16 @@ const enUs = {
   [localeKeys.membersAddress]: "Members addresses",
   [localeKeys.addMembers]: "Add members",
   [localeKeys.createMultisig]: "Create",
+  [localeKeys.multisigCreationFailed]: `Creation failed, unable to find the multisig account in Darwinia 1.0, please double-check the threshold and the addresses of all members.`,
+  [localeKeys.multisigNameTip]: `Arbitrary wallet name to help yourself remember.`,
+  [localeKeys.multisigThresholdTip]: `Minimum approvals required to validate the multi-sig transaction.`,
+  [localeKeys.address]: "Address",
+  [localeKeys.asset]: "Asset",
+  [localeKeys.actions]: "Actions",
+  [localeKeys.balanceAmount]: "{{amount}} {{tokenSymbol}}",
+  [localeKeys.members]: "Members",
+  [localeKeys.member]: "Member",
+  [localeKeys.memberYou]: "Member(You)",
 };
 
 export default enUs;

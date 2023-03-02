@@ -55,6 +55,14 @@ const browserRouter = createHashRouter([
           </Protected>
         ),
       },
+      {
+        path: "multisig-account-summary",
+        element: (
+          <Protected>
+            <LazyLoader componentFileName={"MultisigAccountSummary"} />
+          </Protected>
+        ),
+      },
       /*{
         path: "relayers-overview",
         element: <LazyLoader componentFileName={"RelayersOverview"} />,

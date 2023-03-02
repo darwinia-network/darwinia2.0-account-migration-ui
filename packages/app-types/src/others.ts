@@ -1,4 +1,4 @@
-import { SupportedWallet } from "./wallet";
+import { MultisigAccount, SupportedWallet } from "./wallet";
 
 export interface Account {
   id: number;
@@ -8,4 +8,5 @@ export interface Storage {
   isConnectedToWallet?: boolean;
   selectedNetwork?: boolean;
   selectedWallet?: SupportedWallet;
+  multisigAccounts?: MultisigAccount[];
 }

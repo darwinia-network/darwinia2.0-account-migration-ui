@@ -62,7 +62,7 @@ const Root = () => {
         if (setMultisig) {
           setMultisig(false);
         }
-      } else if (location.pathname === "/multisig-home") {
+      } else if (location.pathname.includes("multisig")) {
         if (setMultisig) {
           setMultisig(true);
         }

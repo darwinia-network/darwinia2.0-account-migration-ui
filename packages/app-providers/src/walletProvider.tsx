@@ -11,6 +11,8 @@ import {
   SpVersionRuntimeVersion,
   PalletVestingVestingInfo,
   DarwiniaAccountMigrationAssetAccount,
+  CreateOptions,
+  MultisigAccount,
 } from "@darwinia/app-types";
 import { ApiPromise, WsProvider, SubmittableResult } from "@polkadot/api";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
@@ -59,6 +61,9 @@ const initialState: WalletCtx = {
   },
   setMultisig: (value: boolean) => {
     //ignore
+  },
+  checkDarwiniaOneMultisigAccount: (signatories: string[], threshold: number, { name, tags = [] }: CreateOptions) => {
+    return Promise.resolve(undefined);
   },
 };
 
@@ -365,6 +370,33 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
     });
   }, [apiPromise]);
 
+  const checkDarwiniaOneMultisigAccount = useCallback(
+    (signatories: string[], threshold: number, { name, tags = [] }: CreateOptions) => {
+      if (!apiPromise) {
+        return Promise.resolve(undefined);
+      }
+
+      const genesisHash = apiPromise.genesisHash.toString();
+
+      const accountResult = keyring.addMultisig(signatories, threshold, { genesisHash, name, tags });
+      const { pair } = accountResult;
+      const { meta } = pair;
+      const account: MultisigAccount = {
+        address: pair.address,
+        type: pair.type,
+        meta: {
+          genesisHash: meta.genesisHash?.toString() ?? "",
+          name: (meta.name ?? "") as string,
+          who: (meta.who ?? []) as string[],
+          threshold: (meta.threshold ?? 1) as number,
+        },
+      };
+
+      return Promise.resolve(account);
+    },
+    [apiPromise]
+  );
+
   return (
     <WalletContext.Provider
       value={{
@@ -386,6 +418,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         onInitMigration,
         isMultisig,
         setMultisig,
+        checkDarwiniaOneMultisigAccount,
       }}
     >
       {children}

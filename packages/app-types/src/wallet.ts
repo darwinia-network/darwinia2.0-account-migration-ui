@@ -70,8 +70,32 @@ export interface WalletCtx {
   walletConfig: WalletConfig | undefined;
   isMultisig: boolean | undefined;
   setMultisig: (value: boolean) => void;
+  checkDarwiniaOneMultisigAccount: (
+    signatories: string[],
+    threshold: number,
+    { name, tags = [] }: CreateOptions
+  ) => Promise<MultisigAccount | undefined>;
 }
 
 export interface SpVersionRuntimeVersion extends Struct {
   specName: string;
+}
+
+export interface CreateOptions {
+  genesisHash?: string;
+  name: string;
+  tags?: string[];
+}
+
+export interface MultisigAccountMeta {
+  who: string[];
+  genesisHash: string;
+  name: string;
+  threshold: number;
+}
+
+export interface MultisigAccount {
+  address: string;
+  type: string;
+  meta: MultisigAccountMeta;
 }
