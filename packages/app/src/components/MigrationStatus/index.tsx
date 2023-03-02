@@ -148,7 +148,7 @@ const MigrationStatus = ({ accountMigration }: Props) => {
             <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis"}>
               <img className={"w-[18px] shrink-0"} src={clockIcon} alt="image" />
               <div>
-                {toTimeAgo(accountMigration?.blockTime)} ({formatTimeInUTC(accountMigration?.blockTime)})
+                {toTimeAgo(accountMigration?.blockTime, true)} ({formatTimeInUTC(accountMigration?.blockTime)})
               </div>
             </div>
           )}

@@ -39,6 +39,7 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
   } = useLedger({
     apiPromise,
     selectedAccount: selectedAccount?.address,
+    selectedNetwork,
   });
 
   const isKeyringInitialized = useRef<boolean>(false);

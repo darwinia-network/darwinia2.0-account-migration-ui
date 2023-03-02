@@ -32,7 +32,7 @@ const Migration = () => {
     error,
   } = useQuery<MigrationResult, MigrationQuery>(FIND_MIGRATION_BY_SOURCE_ADDRESS, {
     variables: {
-      accountAddress: selectedAccount?.address ?? "",
+      accountAddress: selectedAccount?.formattedAddress ?? "",
     },
   });
 

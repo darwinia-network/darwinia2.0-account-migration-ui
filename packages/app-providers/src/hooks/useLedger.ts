@@ -8,6 +8,7 @@ import {
   DepositEncoded,
   PalletVestingVestingInfo,
   DarwiniaAccountMigrationAssetAccount,
+  ChainConfig,
 } from "@darwinia/app-types";
 import BigNumber from "bignumber.js";
 import { ApiPromise } from "@polkadot/api";
@@ -19,9 +20,10 @@ import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 interface Params {
   apiPromise: ApiPromise | undefined;
   selectedAccount: string | undefined;
+  selectedNetwork: ChainConfig | undefined;
 }
 
-const useLedger = ({ apiPromise, selectedAccount }: Params) => {
+const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => {
   const [isLoadingLedger, setLoadingLedger] = useState<boolean>(true);
   const [isLoadingMigratedLedger, setLoadingMigratedLedger] = useState<boolean>(true);
   const isInitialLoad = useRef<boolean>(true);
@@ -35,9 +37,12 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
   useEffect(() => {
     if (selectedAccount) {
       setStakedAssetDistribution(undefined);
+      setMigratedAssetDistribution(undefined);
       isInitialLoad.current = true;
+      setLoadingMigratedLedger(true);
+      setLoadingLedger(true);
     }
-  }, [selectedAccount]);
+  }, [selectedAccount, selectedNetwork]);
 
   const getAccountAsset = useCallback(
     (accountId: string, parentBlockHash?: string) => {
@@ -52,11 +57,15 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
         if (isInitialLoad.current && !isDataAtPoint) {
           isInitialLoad.current = false;
           setLoadingLedger(true);
+        } else {
+          setLoadingLedger(false);
         }
 
         if (isInitialMigratedDataLoad.current && isDataAtPoint) {
           isInitialMigratedDataLoad.current = false;
           setLoadingMigratedLedger(true);
+        } else {
+          setLoadingMigratedLedger(false);
         }
 
         let transferableKTON = BigNumber(0);
@@ -315,7 +324,7 @@ const useLedger = ({ apiPromise, selectedAccount }: Params) => {
     if (selectedAccount) {
       getAccountAsset(selectedAccount);
     }
-  }, [apiPromise, selectedAccount, currentBlock]);
+  }, [apiPromise, selectedAccount]);
 
   const retrieveMigratedAsset = useCallback(
     (sourceAccountId: string, parentBlockHash: string) => {

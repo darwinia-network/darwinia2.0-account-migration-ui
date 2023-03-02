@@ -22,6 +22,7 @@ import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 import { UnSubscription } from "./storageProvider";
 import { Option, Vec } from "@polkadot/types";
+import { convertToSS58 } from "@darwinia/app-utils";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
@@ -189,6 +190,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           ...accounts[i],
           prettyName,
           balance: balance,
+          formattedAddress: convertToSS58(accounts[i].address, selectedNetwork?.prefix ?? 18),
         });
       }
 
@@ -202,6 +204,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           type: "sr25519",
           address: forcedAccountAddress.current,
           meta: { source: "" },
+          formattedAddress: convertToSS58(forcedAccountAddress.current, selectedNetwork?.prefix ?? 18),
         });
       }
       if (customAccounts.length > 0) {
@@ -213,7 +216,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
     parseAccounts().catch(() => {
       //ignore
     });
-  }, [injectedAccountsRef.current, apiPromise]);
+  }, [injectedAccountsRef.current, apiPromise, selectedNetwork]);
 
   /*Connect to MetaMask*/
   const connectWallet = useCallback(async () => {
@@ -223,6 +226,9 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
     try {
       if (!isWalletInstalled()) {
+        setWalletConnected(false);
+        setRequestingWalletConnection(false);
+        setLoadingTransaction(false);
         setError({
           code: 1,
           message: "Please Install Polkadot JS Extension",
@@ -277,6 +283,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         }
       }
     } catch (e) {
+      setWalletConnected(false);
       setRequestingWalletConnection(false);
       //ignore
     }
