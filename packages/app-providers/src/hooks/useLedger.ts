@@ -24,8 +24,8 @@ interface Params {
 }
 
 const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => {
-  const [isLoadingLedger, setLoadingLedger] = useState<boolean>(true);
-  const [isLoadingMigratedLedger, setLoadingMigratedLedger] = useState<boolean>(true);
+  const [isLoadingLedger, setLoadingLedger] = useState<boolean>(false);
+  const [isLoadingMigratedLedger, setLoadingMigratedLedger] = useState<boolean>(false);
   const isInitialLoad = useRef<boolean>(true);
   const isInitialMigratedDataLoad = useRef<boolean>(true);
   /*staking asset distribution*/
@@ -50,6 +50,8 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
 
       const getStakingLedgerAndDeposits = async () => {
         if (!apiPromise || !currentBlock) {
+          setLoadingMigratedLedger(false);
+          setLoadingLedger(false);
           return;
         }
         const api = isDataAtPoint ? await apiPromise.at(parentBlockHash ?? "") : apiPromise;
@@ -311,6 +313,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           });
         }
         setLoadingMigratedLedger(false);
+        setLoadingLedger(false);
 
         // console.log(e);
         //ignore
