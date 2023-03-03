@@ -76,4 +76,11 @@ export const localeKeys = {
   members: "members",
   member: "member",
   memberYou: "memberYou",
+  migration: "migration",
+  continue: "continue",
+  general: "general",
+  fromSubstrateMultisig: "fromSubstrateMultisig",
+  toEVMAccountDarwinia: "toEVMAccountDarwinia",
+  evmAccountFormat: "evmAccountFormat",
+  migrationNotice: "migrationNotice",
 };

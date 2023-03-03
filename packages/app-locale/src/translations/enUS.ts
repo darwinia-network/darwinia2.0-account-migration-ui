@@ -77,6 +77,14 @@ const enUs = {
   [localeKeys.members]: "Members",
   [localeKeys.member]: "Member",
   [localeKeys.memberYou]: "Member(You)",
+  [localeKeys.migration]: "Migration",
+  [localeKeys.continue]: "Continue",
+  [localeKeys.general]: "General",
+  [localeKeys.fromSubstrateMultisig]: "From The Substrate Multisig Account (Darwinia 1.0)",
+  [localeKeys.toEVMAccountDarwinia]: "To The EVM Account (Darwinia 2.0)",
+  [localeKeys.evmAccountFormat]: "EVM Account Format e.g. 0x267be1…",
+  [localeKeys.migrationNotice]:
+    "Please Ensure That You Have The Private Key For This EVM Account. And This Account Is Not From Any Third-Party Platform.",
 };
 
 export default enUs;
