@@ -1,6 +1,7 @@
 import migrationIcon from "../../assets/images/migration.svg";
 import { localeKeys, useAppTranslation } from "@darwinia/app-locale";
 import successIcon from "../../assets/images/success.svg";
+import pendingIcon from "../../assets/images/pending.svg";
 import copyIcon from "../../assets/images/copy.svg";
 import clockIcon from "../../assets/images/clock.svg";
 import ringIcon from "../../assets/images/ring.svg";
@@ -109,38 +110,48 @@ const MigrationStatus = ({ accountMigration }: Props) => {
           <img className={"w-[40px]"} src={migrationIcon} alt="migration" />
           <div className={"text-24-bold"} dangerouslySetInnerHTML={{ __html: t(localeKeys.accountMigrationTitle) }} />
         </div>
-        <div className={"text-12-bold leading-[24px]"}>
-          <div>{t(localeKeys.accountMigratedSuccessfully)}</div>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: t(localeKeys.whereNextAfterMigration, {
-                link: "https://www.staking.darwinia.network",
-              }),
-            }}
-          />
-        </div>
+        {accountMigration && (
+          <div className={"text-12-bold leading-[24px]"}>
+            <div>{t(localeKeys.accountMigratedSuccessfully)}</div>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: t(localeKeys.whereNextAfterMigration, {
+                  link: "https://www.staking.darwinia.network",
+                }),
+              }}
+            />
+          </div>
+        )}
       </div>
       <div className={"card flex flex-col gap-[10px]"}>
         <div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.status)}</div>
           <div className={"flex-1 flex gap-[10px] items-center"}>
-            <img className={"w-[18px] shrink-0"} src={successIcon} alt="image" />
-            <div className={"text-success"}>{t(localeKeys.success)}</div>
+            <img className={"w-[18px] shrink-0"} src={accountMigration ? successIcon : pendingIcon} alt="image" />
+            <div>
+              {accountMigration ? (
+                <div className={"text-success"}>{t(localeKeys.success)}</div>
+              ) : (
+                <div className={"text-white"}>{t(localeKeys.pending)}</div>
+              )}
+            </div>
           </div>
         </div>
         <div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.transactionHash)}</div>
-          <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis"}>
-            <div className={"text-primary text-14-bold"}>{accountMigration?.transactionHash}</div>
-            <img
-              onClick={() => {
-                onCopyTransactionHash();
-              }}
-              className={"w-[16px] shrink-0 clickable"}
-              src={copyIcon}
-              alt="image"
-            />
-          </div>
+          {accountMigration && (
+            <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis"}>
+              <div className={"text-primary text-14-bold"}>{accountMigration?.transactionHash}</div>
+              <img
+                onClick={() => {
+                  onCopyTransactionHash();
+                }}
+                className={"w-[16px] shrink-0 clickable"}
+                src={copyIcon}
+                alt="image"
+              />
+            </div>
+          )}
         </div>
         <div className={"flex justify-between py-[14px] divider "}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.timestamp)}</div>
@@ -158,49 +169,55 @@ const MigrationStatus = ({ accountMigration }: Props) => {
 
         <div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.migrateFrom)}</div>
-          <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis text-primary text-14-bold"}>
-            <div>{accountMigration?.id}</div>
-          </div>
+          {accountMigration && (
+            <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis text-primary text-14-bold"}>
+              <div>{accountMigration?.id}</div>
+            </div>
+          )}
         </div>
         <div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.migrateTo)}</div>
-          <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis text-primary text-14-bold"}>
-            <div>{accountMigration?.destination}</div>
-          </div>
+          {accountMigration && (
+            <div className={"flex-1 flex gap-[10px] items-center flex-ellipsis text-primary text-14-bold"}>
+              <div>{accountMigration?.destination}</div>
+            </div>
+          )}
         </div>
 
         <div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.value)}</div>
-          <div className={"flex-1 flex flex-col gap-[10px] flex-ellipsis"}>
-            <div className={"flex gap-[10px] items-center"}>
-              <img className={"w-[18px] shrink-0"} src={ringIcon} alt="image" />
+          {accountMigration && (
+            <div className={"flex-1 flex flex-col gap-[10px] flex-ellipsis"}>
               <div className={"flex gap-[10px] items-center"}>
-                <Tooltip message={prettifyTooltipNumber(totalRING)}>
-                  {prettifyNumber({
-                    number: totalRING,
-                  })}
+                <img className={"w-[18px] shrink-0"} src={ringIcon} alt="image" />
+                <div className={"flex gap-[10px] items-center"}>
+                  <Tooltip message={prettifyTooltipNumber(totalRING)}>
+                    {prettifyNumber({
+                      number: totalRING,
+                    })}
+                  </Tooltip>
+                  {selectedNetwork?.ring.symbol.toUpperCase()}
+                </div>
+                <Tooltip className={"shrink-0"} message={getRingTooltipMessage()}>
+                  <img className={"w-[16px] shrink-0 clickable"} src={helpIcon} alt="image" />
                 </Tooltip>
-                {selectedNetwork?.ring.symbol.toUpperCase()}
               </div>
-              <Tooltip className={"shrink-0"} message={getRingTooltipMessage()}>
-                <img className={"w-[16px] shrink-0 clickable"} src={helpIcon} alt="image" />
-              </Tooltip>
-            </div>
-            <div className={"flex gap-[10px] items-center"}>
-              <img className={"w-[18px] shrink-0"} src={ktonIcon} alt="image" />
               <div className={"flex gap-[10px] items-center"}>
-                <Tooltip message={prettifyTooltipNumber(totalKTON)}>
-                  {prettifyNumber({
-                    number: totalKTON,
-                  })}
+                <img className={"w-[18px] shrink-0"} src={ktonIcon} alt="image" />
+                <div className={"flex gap-[10px] items-center"}>
+                  <Tooltip message={prettifyTooltipNumber(totalKTON)}>
+                    {prettifyNumber({
+                      number: totalKTON,
+                    })}
+                  </Tooltip>
+                  {selectedNetwork?.kton.symbol.toUpperCase()}
+                </div>
+                <Tooltip className={"shrink-0"} message={getKtonTooltipMessage()}>
+                  <img className={"w-[16px] shrink-0 clickable"} src={helpIcon} alt="image" />
                 </Tooltip>
-                {selectedNetwork?.kton.symbol.toUpperCase()}
               </div>
-              <Tooltip className={"shrink-0"} message={getKtonTooltipMessage()}>
-                <img className={"w-[16px] shrink-0 clickable"} src={helpIcon} alt="image" />
-              </Tooltip>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

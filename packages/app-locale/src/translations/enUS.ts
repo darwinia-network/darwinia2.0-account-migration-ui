@@ -55,6 +55,7 @@ const enUs = {
   [localeKeys.evmAccountNotFree]: "This EVM account is not free",
   [localeKeys.noTokensToMigrate]: `Selected account has no tokens to migrate`,
   [localeKeys.installWalletReminder]: `Connection failed. Please install {{walletName}} <a target='_blank' class="link link-primary" href={{downloadURL}}>here</a>.`,
+  [localeKeys.pending]: "Pending",
 };
 
 export default enUs;
