@@ -16,6 +16,7 @@ const Root = () => {
     selectedNetwork,
     isLoadingTransaction,
     walletConfig,
+    isLoadingBalance,
   } = useWallet();
   const { isLoadingLedger, isLoadingMigratedLedger } = useStorage();
   const [loading, setLoading] = useState<boolean | undefined>(false);
@@ -24,8 +25,21 @@ const Root = () => {
   const { t } = useAppTranslation();
 
   useEffect(() => {
-    setLoading(isRequestingWalletConnection || isLoadingTransaction || isLoadingLedger || isLoadingMigratedLedger);
-  }, [isRequestingWalletConnection, isWalletConnected, isLoadingTransaction, isLoadingLedger, isLoadingMigratedLedger]);
+    setLoading(
+      isRequestingWalletConnection ||
+        isLoadingTransaction ||
+        isLoadingLedger ||
+        isLoadingMigratedLedger ||
+        isLoadingBalance
+    );
+  }, [
+    isRequestingWalletConnection,
+    isWalletConnected,
+    isLoadingTransaction,
+    isLoadingLedger,
+    isLoadingMigratedLedger,
+    isLoadingBalance,
+  ]);
 
   const redirect = useCallback(() => {
     setStore("isConnectedToWallet", true);

@@ -70,6 +70,7 @@ export interface WalletCtx {
   onInitMigration: (from: string, to: string, callback: (isSuccessful: boolean) => void) => void;
   isAccountMigratedJustNow: boolean | undefined;
   walletConfig: WalletConfig | undefined;
+  isLoadingBalance: boolean | undefined;
 }
 
 export interface SpVersionRuntimeVersion extends Struct {

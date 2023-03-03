@@ -38,6 +38,7 @@ const initialState: WalletCtx = {
   isLoadingTransaction: undefined,
   isAccountMigratedJustNow: undefined,
   walletConfig: undefined,
+  isLoadingBalance: undefined,
   changeSelectedNetwork: () => {
     // do nothing
   },
@@ -74,6 +75,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const [selectedWallet] = useState<SupportedWallet>("Polkadot JS Extension");
   const [walletConfig, setWalletConfig] = useState<WalletConfig>();
   const [isLoadingTransaction, setLoadingTransaction] = useState<boolean>(false);
+  const [isLoadingBalance, setLoadingBalance] = useState<boolean>(false);
   const [apiPromise, setApiPromise] = useState<ApiPromise>();
   const { getPrettyName } = useAccountPrettyName(apiPromise);
   const DARWINIA_APPS = "darwinia/apps";
@@ -178,8 +180,10 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     const parseAccounts = async () => {
       if (!apiPromise) {
+        setLoadingBalance(false);
         return;
       }
+      setLoadingBalance(true);
       const customAccounts: CustomInjectedAccountWithMeta[] = [];
 
       const accounts = injectedAccountsRef.current;
@@ -211,9 +215,11 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         setSelectedAccount(customAccounts[0]);
       }
       setInjectedAccounts(customAccounts);
+      setLoadingBalance(false);
     };
 
     parseAccounts().catch(() => {
+      setLoadingBalance(false);
       //ignore
     });
   }, [injectedAccountsRef.current, apiPromise, selectedNetwork]);
@@ -229,6 +235,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         setWalletConnected(false);
         setRequestingWalletConnection(false);
         setLoadingTransaction(false);
+        setLoadingBalance(false);
         setError({
           code: 1,
           message: "Please Install Polkadot JS Extension",
@@ -245,6 +252,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
       api.on("connected", async () => {
         const readyAPI = await api.isReady;
         setApiPromise(readyAPI);
+        setRequestingWalletConnection(false);
       });
       api.on("disconnected", () => {
         // console.log("disconnected");
@@ -279,12 +287,12 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         if (accounts.length > 0) {
           /* we default using the first account */
           setWalletConnected(true);
-          setRequestingWalletConnection(false);
         }
       }
     } catch (e) {
       setWalletConnected(false);
       setRequestingWalletConnection(false);
+      setLoadingBalance(false);
       //ignore
     }
   }, [isWalletInstalled, selectedNetwork, isRequestingWalletConnection, apiPromise, getPrettyName]);
@@ -386,6 +394,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         selectedNetwork,
         forceSetAccountAddress,
         onInitMigration,
+        isLoadingBalance,
       }}
     >
       {children}
