@@ -13,10 +13,6 @@ import trashIcon from "../../assets/images/trash-bin.svg";
 import { getStore, prettifyNumber, setStore } from "@darwinia/app-utils";
 import { useLocation, useNavigate } from "react-router-dom";
 
-interface Props {
-  isCheckingMigrationStatus: boolean;
-}
-
 interface Asset {
   ring: BigNumber;
   kton: BigNumber;
@@ -31,7 +27,7 @@ interface MultisigAccountData {
   threshold: number;
 }
 
-const MultisigMigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
+const MultisigMigrationProcess = () => {
   const { selectedAccount, injectedAccounts, checkDarwiniaOneMultisigAccount, selectedNetwork } = useWallet();
   const { migrationAssetDistribution, isLoadingLedger } = useStorage();
   const { t } = useAppTranslation();
@@ -143,16 +139,12 @@ const MultisigMigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
 
   const onInitializeMigration = useCallback(
     (item: MultisigAccountData) => {
-      //multisig-account-summary
-      console.log(item);
-      console.log(location);
       const params = new URLSearchParams(location.search);
       params.set("address", item.address);
       params.set("name", item.name);
       params.set("who", item.who.join(","));
       params.set("threshold", item.threshold.toString());
-      console.log(params.toString());
-      navigate(`/multisig-account-summary?${params.toString()}`);
+      navigate(`/multisig-account-migration-summary?${params.toString()}`);
     },
     [location]
   );

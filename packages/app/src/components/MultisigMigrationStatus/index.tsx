@@ -28,9 +28,9 @@ const MultisigMigrationStatus = ({ accountMigration }: Props) => {
   const { selectedNetwork, setTransactionStatus } = useWallet();
   const { retrieveMigratedAsset, migratedAssetDistribution, isLoadingMigratedLedger } = useStorage();
 
-  useEffect(() => {
+  /*useEffect(() => {
     setTransactionStatus(!!isLoadingMigratedLedger);
-  }, [isLoadingMigratedLedger]);
+  }, [isLoadingMigratedLedger]);*/
 
   useEffect(() => {
     if (accountMigration) {
@@ -102,9 +102,39 @@ const MultisigMigrationStatus = ({ accountMigration }: Props) => {
     copyToClipboard(accountMigration?.transactionHash ?? "");
   };
 
+  const footerLinks = [
+    {
+      title: t(localeKeys.howToMigrate),
+      url: "https://www.baidu.com",
+    },
+    {
+      title: t(localeKeys.darwiniaMergeOverview),
+      url: "https://medium.com/darwinianetwork/darwinia-2-0-merge-overview-96af96d668aa",
+    },
+    {
+      title: t(localeKeys.darwiniaDataMigration),
+      url: "https://medium.com/darwinianetwork/darwinia-2-0-blockchain-data-migration-c1186338c743",
+    },
+  ];
+
   return (
     <div className={"flex flex-col gap-[20px]"}>
       <div>Migration status</div>
+      <div className={"flex flex-col lg:flex-row justify-between"}>
+        {footerLinks.map((item, index) => {
+          return (
+            <a
+              key={index}
+              className={"text-14-bold link link-primary"}
+              href={item.url}
+              rel={"noreferrer"}
+              target={"_blank"}
+            >
+              {item.title}
+            </a>
+          );
+        })}
+      </div>
     </div>
   );
 };
