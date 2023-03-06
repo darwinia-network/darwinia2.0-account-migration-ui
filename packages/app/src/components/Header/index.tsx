@@ -80,12 +80,12 @@ const Header = () => {
               {selectedAccount ? (
                 <div className={"border-primary border pl-[15px]"}>
                   <div className={"flex items-center gap-[10px]"}>
-                    <Identicon size={20} value={selectedAccount?.address} theme={"polkadot"} />
+                    <Identicon size={20} value={selectedAccount?.formattedAddress} theme={"polkadot"} />
                     <div
                       onClick={onShowSelectAccountModal}
                       className={"select-none pr-[15px] py-[7px] flex gap-[10px]"}
                     >
-                      <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
+                      <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.formattedAddress)}</div>
                       <img className={"w-[16px]"} src={caretIcon} alt="image" />
                     </div>
                   </div>
@@ -122,12 +122,12 @@ const Header = () => {
               {selectedAccount ? (
                 <div className={"border-primary border pl-[15px] cursor-pointer"}>
                   <div className={"flex items-center gap-[10px]"}>
-                    <Identicon size={20} value={selectedAccount?.address} theme={"polkadot"} />
+                    <Identicon size={20} value={selectedAccount?.formattedAddress} theme={"polkadot"} />
                     <div
                       onClick={onShowSelectAccountModal}
                       className={"select-none pr-[15px] py-[5px] flex gap-[10px]"}
                     >
-                      <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
+                      <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.formattedAddress)}</div>
                       <img className={"w-[16px]"} src={caretIcon} alt="image" />
                     </div>
                   </div>
