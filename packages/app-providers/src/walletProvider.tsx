@@ -22,6 +22,7 @@ import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 import { UnSubscription } from "./storageProvider";
 import { Option, Vec } from "@polkadot/types";
+import { convertToSS58 } from "@darwinia/app-utils";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
@@ -37,6 +38,7 @@ const initialState: WalletCtx = {
   isLoadingTransaction: undefined,
   isAccountMigratedJustNow: undefined,
   walletConfig: undefined,
+  isLoadingBalance: undefined,
   changeSelectedNetwork: () => {
     // do nothing
   },
@@ -73,6 +75,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const [selectedWallet] = useState<SupportedWallet>("Polkadot JS Extension");
   const [walletConfig, setWalletConfig] = useState<WalletConfig>();
   const [isLoadingTransaction, setLoadingTransaction] = useState<boolean>(false);
+  const [isLoadingBalance, setLoadingBalance] = useState<boolean>(false);
   const [apiPromise, setApiPromise] = useState<ApiPromise>();
   const { getPrettyName } = useAccountPrettyName(apiPromise);
   const DARWINIA_APPS = "darwinia/apps";
@@ -177,8 +180,10 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     const parseAccounts = async () => {
       if (!apiPromise) {
+        setLoadingBalance(false);
         return;
       }
+      setLoadingBalance(true);
       const customAccounts: CustomInjectedAccountWithMeta[] = [];
 
       const accounts = injectedAccountsRef.current;
@@ -189,6 +194,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           ...accounts[i],
           prettyName,
           balance: balance,
+          formattedAddress: convertToSS58(accounts[i].address, selectedNetwork?.prefix ?? 18),
         });
       }
 
@@ -202,18 +208,21 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           type: "sr25519",
           address: forcedAccountAddress.current,
           meta: { source: "" },
+          formattedAddress: convertToSS58(forcedAccountAddress.current, selectedNetwork?.prefix ?? 18),
         });
       }
       if (customAccounts.length > 0) {
         setSelectedAccount(customAccounts[0]);
       }
       setInjectedAccounts(customAccounts);
+      setLoadingBalance(false);
     };
 
     parseAccounts().catch(() => {
+      setLoadingBalance(false);
       //ignore
     });
-  }, [injectedAccountsRef.current, apiPromise]);
+  }, [injectedAccountsRef.current, apiPromise, selectedNetwork]);
 
   /*Connect to MetaMask*/
   const connectWallet = useCallback(async () => {
@@ -223,6 +232,10 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
     try {
       if (!isWalletInstalled()) {
+        setWalletConnected(false);
+        setRequestingWalletConnection(false);
+        setLoadingTransaction(false);
+        setLoadingBalance(false);
         setError({
           code: 1,
           message: "Please Install Polkadot JS Extension",
@@ -239,6 +252,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
       api.on("connected", async () => {
         const readyAPI = await api.isReady;
         setApiPromise(readyAPI);
+        setRequestingWalletConnection(false);
       });
       api.on("disconnected", () => {
         // console.log("disconnected");
@@ -273,11 +287,12 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         if (accounts.length > 0) {
           /* we default using the first account */
           setWalletConnected(true);
-          setRequestingWalletConnection(false);
         }
       }
     } catch (e) {
+      setWalletConnected(false);
       setRequestingWalletConnection(false);
+      setLoadingBalance(false);
       //ignore
     }
   }, [isWalletInstalled, selectedNetwork, isRequestingWalletConnection, apiPromise, getPrettyName]);
@@ -379,6 +394,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         selectedNetwork,
         forceSetAccountAddress,
         onInitMigration,
+        isLoadingBalance,
       }}
     >
       {children}

@@ -14,9 +14,9 @@ export const darwinia: ChainConfig = {
     decimals: 18,
   },
   chainId: 46,
+  prefix: 18,
   substrate: {
     graphQlURL: "https://subql.darwinia.network/subql-apps-darwinia/",
     wssURL: "wss://rpc.darwinia.network",
-    httpsURL: "https://rpc.darwinia.network",
   },
 };

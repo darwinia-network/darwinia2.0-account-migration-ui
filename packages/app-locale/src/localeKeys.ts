@@ -55,4 +55,5 @@ export const localeKeys = {
   evmAccountNotFree: "evmAccountNotFree",
   noTokensToMigrate: "noTokensToMigrate",
   installWalletReminder: "installWalletReminder",
+  pending: "pending",
 };

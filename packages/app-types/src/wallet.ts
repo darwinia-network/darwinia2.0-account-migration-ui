@@ -16,7 +16,7 @@ export interface Token {
 
 export interface Substrate {
   wssURL: string;
-  httpsURL: string;
+  httpsURL?: string;
   metadata?: string;
   graphQlURL: string;
 }
@@ -27,6 +27,7 @@ export interface ChainConfig {
   chainId: number;
   ring: Token;
   kton: Token;
+  prefix: number;
   substrate: Substrate;
 }
 
@@ -49,6 +50,7 @@ export interface WalletError {
 export interface CustomInjectedAccountWithMeta extends InjectedAccountWithMeta {
   prettyName: string | undefined;
   balance: AssetBalance;
+  formattedAddress: string;
 }
 
 export interface WalletCtx {
@@ -68,6 +70,7 @@ export interface WalletCtx {
   onInitMigration: (from: string, to: string, callback: (isSuccessful: boolean) => void) => void;
   isAccountMigratedJustNow: boolean | undefined;
   walletConfig: WalletConfig | undefined;
+  isLoadingBalance: boolean | undefined;
 }
 
 export interface SpVersionRuntimeVersion extends Struct {

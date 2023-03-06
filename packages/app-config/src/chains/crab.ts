@@ -14,9 +14,9 @@ export const crab: ChainConfig = {
     decimals: 18,
   },
   chainId: 44,
+  prefix: 42,
   substrate: {
     graphQlURL: "https://subql.darwinia.network/subql-apps-crab/",
     wssURL: "wss://crab-rpc.darwinia.network",
-    httpsURL: "https://crab-rpc.darwinia.network",
   },
 };

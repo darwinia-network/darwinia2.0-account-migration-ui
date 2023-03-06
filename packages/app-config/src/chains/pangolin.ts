@@ -14,9 +14,9 @@ export const pangolin: ChainConfig = {
     decimals: 9,
   },
   chainId: 43,
+  prefix: 42,
   substrate: {
-    graphQlURL: "https://api.subquery.network/sq/isunaslabs/pangolin2",
+    graphQlURL: "https://subql.darwinia.network/subql-apps-pangolin",
     wssURL: "wss://pangolin-rpc.darwinia.network/",
-    httpsURL: "https://pangolin-rpc.darwinia.network",
   },
 };

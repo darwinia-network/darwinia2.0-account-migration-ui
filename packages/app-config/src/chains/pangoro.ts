@@ -15,9 +15,16 @@ export const pangoro: ChainConfig = {
     decimals: 9,
   },
   chainId: 45,
+  prefix: 18,
   substrate: {
-    graphQlURL: "https://api.subquery.network/sq/isunaslabs/pangoro-2",
-    wssURL: "ws://g1.dev.darwinia.network:20000",
-    httpsURL: "https://pangolin-rpc.darwinia.network",
+    graphQlURL: "https://subql.darwinia.network/subql-apps-pangoro",
+    wssURL: "wss://pangoro-rpc.darwinia.network",
   },
 };
+
+//graphQlURL: "https://subql.darwinia.network/subql-apps-pangoro",
+//wssURL: "wss://pangoro-rpc.darwinia.network",
+
+//dev
+//graphQlURL: "https://api.subquery.network/sq/isunaslabs/pangoro-2",
+//     wssURL: "ws://g1.dev.darwinia.network:20000",
