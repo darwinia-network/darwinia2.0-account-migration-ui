@@ -87,7 +87,7 @@ const MigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
         </div>
       </div>
       <MigrationSummary isCheckingMigrationStatus={isCheckingMigrationStatus} />
-      {showMigrationForm && <MigrationForm />}
+      <MigrationForm />
       <div className={"flex flex-col lg:flex-row justify-between"}>
         {footerLinks.map((item, index) => {
           return (
