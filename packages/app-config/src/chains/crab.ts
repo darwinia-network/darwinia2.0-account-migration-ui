@@ -6,12 +6,12 @@ export const crab: ChainConfig = {
   kton: {
     address: "0x0000000000000000000000000000000000000402",
     symbol: "CKTON",
-    decimals: 18,
+    decimals: 9,
   },
   ring: {
     name: "CRAB",
     symbol: "CRAB",
-    decimals: 18,
+    decimals: 9,
   },
   chainId: 44,
   prefix: 42,
