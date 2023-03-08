@@ -2,7 +2,7 @@ import { ChainConfig } from "@darwinia/app-types";
 
 export const crab: ChainConfig = {
   name: "Crab",
-  displayName: "Crab",
+  displayName: "Crab Dev",
   kton: {
     address: "0x0000000000000000000000000000000000000402",
     symbol: "CKTON",
