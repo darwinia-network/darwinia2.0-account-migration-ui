@@ -16,7 +16,13 @@ export const crab: ChainConfig = {
   chainId: 44,
   prefix: 42,
   substrate: {
-    graphQlURL: "https://subql.darwinia.network/subql-apps-crab/",
-    wssURL: "wss://crab-rpc.darwinia.network",
+    graphQlURL: "https://subql.darwinia.network/subql-apps-crab-dev",
+    wssURL: "ws://g1.dev.darwinia.network:20000",
   },
 };
+
+//Live NET
+/*
+graphQlURL: "https://subql.darwinia.network/subql-apps-crab/",
+wssURL: "wss://crab-rpc.darwinia.network",
+* */
