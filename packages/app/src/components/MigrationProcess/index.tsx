@@ -21,7 +21,7 @@ const MigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
   const canShowAccountNotification = useRef(false);
 
   useEffect(() => {
-    if (currentAccount.current?.address !== selectedAccount?.address) {
+    if (currentAccount.current?.formattedAddress !== selectedAccount?.formattedAddress) {
       currentAccount.current = selectedAccount;
       canShowAccountNotification.current = true;
     }
@@ -75,7 +75,7 @@ const MigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
     <div className={"flex flex-col gap-[30px]"}>
       <div className={"flex items-center card gap-[20px]"}>
         <Identicon
-          value={selectedAccount?.address}
+          value={selectedAccount?.formattedAddress}
           size={30}
           className={"rounded-full bg-white self-start lg:self-center shrink-0"}
           theme={"polkadot"}
@@ -83,11 +83,11 @@ const MigrationProcess = ({ isCheckingMigrationStatus }: Props) => {
         <div className={"flex flex-col lg:flex-row lg:items-center flex-ellipsis gap-[8px]"}>
           <div>{selectedAccount?.prettyName}</div>
           <div className={"hidden lg:flex"}>-</div>
-          <div>{selectedAccount?.address}</div>
+          <div>{selectedAccount?.formattedAddress}</div>
         </div>
       </div>
       <MigrationSummary isCheckingMigrationStatus={isCheckingMigrationStatus} />
-      {showMigrationForm && <MigrationForm />}
+      <MigrationForm />
       <div className={"flex flex-col lg:flex-row justify-between"}>
         {footerLinks.map((item, index) => {
           return (

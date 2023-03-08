@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { notification, Spinner } from "@darwinia/ui";
-import { useWallet } from "@darwinia/app-providers";
+import { useStorage, useWallet } from "@darwinia/app-providers";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { getStore, setStore } from "@darwinia/app-utils";
@@ -17,15 +17,30 @@ const Root = () => {
     isLoadingTransaction,
     walletConfig,
     setMultisig,
+    isLoadingBalance,
   } = useWallet();
+  const { isLoadingLedger, isLoadingMigratedLedger } = useStorage();
   const [loading, setLoading] = useState<boolean | undefined>(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useAppTranslation();
 
   useEffect(() => {
-    setLoading(isRequestingWalletConnection || isLoadingTransaction);
-  }, [isRequestingWalletConnection, isWalletConnected, isLoadingTransaction]);
+    setLoading(
+      isRequestingWalletConnection ||
+        isLoadingTransaction ||
+        isLoadingLedger ||
+        isLoadingMigratedLedger ||
+        isLoadingBalance
+    );
+  }, [
+    isRequestingWalletConnection,
+    isWalletConnected,
+    isLoadingTransaction,
+    isLoadingLedger,
+    isLoadingMigratedLedger,
+    isLoadingBalance,
+  ]);
 
   const redirect = useCallback(() => {
     setStore("isConnectedToWallet", true);
@@ -103,9 +118,10 @@ const Root = () => {
   // no need to auto connect so as to allow
   /*useEffect(() => {
     const shouldAutoConnect = getStore<boolean>("isConnectedToWallet");
-    if (shouldAutoConnect) {
-      connectWallet();
+    if (shouldAutoConnect && walletConfig) {
+      connectWallet(walletConfig.name);
     }
+  }, [selectedNetwork, walletConfig]);
   }, [selectedNetwork]);*/
 
   return (

@@ -38,7 +38,8 @@ export const StorageProvider = ({ children }: PropsWithChildren) => {
     migratedAssetDistribution,
   } = useLedger({
     apiPromise,
-    selectedAccount: selectedAccount?.address,
+    selectedAccount: selectedAccount?.formattedAddress,
+    selectedNetwork,
   });
 
   const isKeyringInitialized = useRef<boolean>(false);

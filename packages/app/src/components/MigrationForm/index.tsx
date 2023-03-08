@@ -104,7 +104,7 @@ const MigrationForm = () => {
     }
     try {
       setProcessingMigration(true);
-      onInitMigration(selectedAccount.address, destinationAddress, (isSuccessful) => {
+      onInitMigration(selectedAccount.formattedAddress, destinationAddress, (isSuccessful) => {
         setProcessingMigration(isSuccessful);
       });
     } catch (e) {
@@ -180,12 +180,12 @@ const MigrationForm = () => {
             </div>
             <div className={"bg-[rgba(255,255,255,0.2)] flex-ellipsis flex items-center gap-[10px] py-[7px] px-[10px]"}>
               <Identicon
-                value={selectedAccount?.address}
+                value={selectedAccount?.formattedAddress}
                 size={26}
                 className={"rounded-full bg-white shrink-0"}
                 theme={"polkadot"}
               />
-              <div>{selectedAccount?.address}</div>
+              <div>{selectedAccount?.formattedAddress}</div>
             </div>
           </div>
           {/*Destination*/}

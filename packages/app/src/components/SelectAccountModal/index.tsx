@@ -43,24 +43,25 @@ const SelectAccountModal = forwardRef<SelectAccountModalRef>((props, ref) => {
     >
       <div className={"dw-custom-scrollbar max-h-[360px] pr-[10px] flex flex-col gap-[20px]"}>
         {injectedAccounts?.map((account) => {
-          const selectedAccountClass = account.address === selectedAccount?.address ? "!border-primary" : "";
+          const selectedAccountClass =
+            account.formattedAddress === selectedAccount?.formattedAddress ? "!border-primary" : "";
           return (
             <div
               onClick={() => {
                 onSelectAccount(account);
               }}
-              key={account.address}
+              key={account.formattedAddress}
               className={`flex cursor-pointer border divider ${selectedAccountClass} py-[10px] px-[20px] gap-[20px]`}
             >
               <Identicon
-                value={account.address}
+                value={account.formattedAddress}
                 size={36}
                 className={"rounded-full self-start bg-white shrink-0"}
                 theme={"polkadot"}
               />
               <div className={"flex flex-col gap-[5px] flex-ellipsis"}>
                 <div className={"text-18-bold"}>{account.prettyName}</div>
-                <div className={"text-14"}>{account.address}</div>
+                <div className={"text-14"}>{account.formattedAddress}</div>
                 <div className={"flex gap-[10px] text-12 text-halfWhite"}>
                   <div className={"flex gap-[5px]"}>
                     <Tooltip message={<div>{prettifyTooltipNumber(account.balance.ring)}</div>}>

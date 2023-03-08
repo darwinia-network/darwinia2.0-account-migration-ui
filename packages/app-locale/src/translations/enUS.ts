@@ -85,6 +85,7 @@ const enUs = {
   [localeKeys.evmAccountFormat]: "EVM Account Format e.g. 0x267be1…",
   [localeKeys.migrationNotice]:
     "Please Ensure That You Have The Private Key For This EVM Account. And This Account Is Not From Any Third-Party Platform.",
+  [localeKeys.pending]: "Pending",
 };
 
 export default enUs;

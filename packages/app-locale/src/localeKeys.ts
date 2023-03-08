@@ -83,4 +83,5 @@ export const localeKeys = {
   toEVMAccountDarwinia: "toEVMAccountDarwinia",
   evmAccountFormat: "evmAccountFormat",
   migrationNotice: "migrationNotice",
+  pending: "pending",
 };

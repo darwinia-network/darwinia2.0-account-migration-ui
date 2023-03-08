@@ -2,6 +2,7 @@ import { Storage } from "@darwinia/app-types";
 import { STORAGE as APP_STORAGE } from "@darwinia/app-config";
 import BigNumber from "bignumber.js";
 import { ethers, utils } from "ethers";
+import { encodeAddress } from "@polkadot/util-crypto";
 
 export const setStore = (key: keyof Storage, value: unknown) => {
   try {
@@ -101,3 +102,21 @@ export const formatToWei = (valueInEther: string) => {
 export const isEthereumAddress = (address: string): boolean => {
   return utils.isAddress(address);
 };
+
+export function convertToSS58(text: string, prefix: number, isShort = false): string {
+  if (!text) {
+    return "";
+  }
+
+  try {
+    let address = encodeAddress(text, prefix);
+
+    if (isShort) {
+      address = toShortAddress(address);
+    }
+
+    return address;
+  } catch (error) {
+    return "";
+  }
+}

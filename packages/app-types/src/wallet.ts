@@ -1,7 +1,7 @@
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { AssetBalance } from "./storage";
 
-export type SupportedWallet = "Polkadot JS Extension";
+export type SupportedWallet = "Polkadot{.js}" | "Talisman" | "SubWallet";
 export type SupportedBrowser = "Chrome" | "Firefox" | "Brave" | "Edge" | "Opera";
 export type ChainName = "Crab" | "Pangolin" | "Darwinia" | "Pangoro";
 import { Struct } from "@polkadot/types";
@@ -16,7 +16,7 @@ export interface Token {
 
 export interface Substrate {
   wssURL: string;
-  httpsURL: string;
+  httpsURL?: string;
   metadata?: string;
   graphQlURL: string;
 }
@@ -27,6 +27,7 @@ export interface ChainConfig {
   chainId: number;
   ring: Token;
   kton: Token;
+  prefix: number;
   substrate: Substrate;
 }
 
@@ -35,10 +36,19 @@ export interface WalletExtension {
   downloadURL: string;
 }
 
+export type WalletSource =
+  | 'polkadot-js'
+  | '"polkadot-js"'
+  | 'talisman'
+  | '"talisman"'
+  | 'subwallet-js'
+  | '"subwallet-js"';
+
 export interface WalletConfig {
   name: SupportedWallet;
   logo: string;
   extensions: WalletExtension[];
+  sources: WalletSource[];
 }
 
 export interface WalletError {
@@ -49,12 +59,13 @@ export interface WalletError {
 export interface CustomInjectedAccountWithMeta extends InjectedAccountWithMeta {
   prettyName: string | undefined;
   balance: AssetBalance;
+  formattedAddress: string;
 }
 
 export interface WalletCtx {
   isRequestingWalletConnection: boolean;
   isWalletConnected: boolean;
-  connectWallet: () => void;
+  connectWallet: (id: SupportedWallet) => void;
   disconnectWallet: () => void;
   forceSetAccountAddress: (accountAddress: string) => void;
   setSelectedAccount: (selectedAccount: CustomInjectedAccountWithMeta) => void;
@@ -68,6 +79,7 @@ export interface WalletCtx {
   onInitMigration: (from: string, to: string, callback: (isSuccessful: boolean) => void) => void;
   isAccountMigratedJustNow: boolean | undefined;
   walletConfig: WalletConfig | undefined;
+  isLoadingBalance: boolean | undefined;
   isMultisig: boolean | undefined;
   setMultisig: (value: boolean) => void;
   checkDarwiniaOneMultisigAccount: (
