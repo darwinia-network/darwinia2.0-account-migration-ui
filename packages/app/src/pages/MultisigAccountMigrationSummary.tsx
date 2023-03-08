@@ -3,6 +3,7 @@ import TokensBalanceSummary from "../components/TokensBalanceSummary";
 import MultisigAccountInfo from "../components/MultisigAccountInfo";
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
+import MultisigMigrationProgressTabs from "../components/MultisigMigrationProgressTabs";
 
 const MultisigAccountMigrationSummary = () => {
   const { t } = useAppTranslation();
@@ -34,7 +35,7 @@ const MultisigAccountMigrationSummary = () => {
     <div className={"flex flex-col gap-[20px]"}>
       <MultisigAccountInfo />
       {isAccountMigrationInitialized ? (
-        <div>Account migration initilized</div>
+        <MultisigMigrationProgressTabs />
       ) : (
         <div className={"card"}>
           <TokensBalanceSummary asset={undefined} />
