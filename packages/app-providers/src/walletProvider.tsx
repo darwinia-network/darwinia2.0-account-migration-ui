@@ -22,7 +22,7 @@ import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@darwinia/api-derive/accounts/types";
 import { UnSubscription } from "./storageProvider";
 import { Option, Vec } from "@polkadot/types";
-import { convertToSS58 } from "@darwinia/app-utils";
+import { convertToSS58, setStore, getStore } from "@darwinia/app-utils";
 
 /*This is just a blueprint, no value will be stored in here*/
 const initialState: WalletCtx = {
@@ -72,7 +72,6 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const forcedAccountAddress = useRef<string>();
   const [error, setError] = useState<WalletError | undefined>(undefined);
   const [selectedNetwork, setSelectedNetwork] = useState<ChainConfig>();
-  const [selectedWallet] = useState<SupportedWallet>("Polkadot JS Extension");
   const [walletConfig, setWalletConfig] = useState<WalletConfig>();
   const [isLoadingTransaction, setLoadingTransaction] = useState<boolean>(false);
   const [isLoadingBalance, setLoadingBalance] = useState<boolean>(false);
@@ -82,11 +81,16 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   const isKeyringInitialized = useRef<boolean>(false);
   const [isAccountMigratedJustNow, setAccountMigratedJustNow] = useState<boolean>(false);
   const [specName, setSpecName] = useState<string>();
+  const [selectedWallet, _setSelectedWallet] = useState<SupportedWallet | null | undefined>();
 
-  const isWalletInstalled = () => {
-    const injectedWallet = window.injectedWeb3;
-    return !!(injectedWallet && injectedWallet["polkadot-js"]);
-  };
+  const setSelectedWallet = useCallback((name: SupportedWallet | null | undefined) => {
+    _setSelectedWallet(name);
+    setStore('selectedWallet', name);
+  }, []);
+
+  useEffect(() => {
+    _setSelectedWallet(getStore('selectedWallet'));
+  }, []);
 
   useEffect(() => {
     const walletConfig = dAppSupportedWallets.find((walletConfig) => walletConfig.name === selectedWallet);
@@ -225,23 +229,31 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
   }, [injectedAccountsRef.current, apiPromise, selectedNetwork]);
 
   /*Connect to MetaMask*/
-  const connectWallet = useCallback(async () => {
+  const connectWallet = useCallback(async (name: SupportedWallet) => {
     if (!selectedNetwork || isRequestingWalletConnection) {
       return;
     }
 
+    const walletCfg = dAppSupportedWallets.find((item) => item.name === name);
+    if (!walletCfg) {
+      return;
+    }
+
+    const injecteds = window.injectedWeb3;
+    const source = injecteds && walletCfg.sources.find((source) => injecteds[source]);
+    if (!source) {
+      setWalletConnected(false);
+      setRequestingWalletConnection(false);
+      setLoadingTransaction(false);
+      setLoadingBalance(false);
+      setError({
+        code: 1,
+        message: "Please Install Polkadot JS Extension",
+      });
+      return;
+    }
+
     try {
-      if (!isWalletInstalled()) {
-        setWalletConnected(false);
-        setRequestingWalletConnection(false);
-        setLoadingTransaction(false);
-        setLoadingBalance(false);
-        setError({
-          code: 1,
-          message: "Please Install Polkadot JS Extension",
-        });
-        return;
-      }
       setWalletConnected(false);
       setRequestingWalletConnection(true);
       const provider = new WsProvider(selectedNetwork.substrate.wssURL);
@@ -261,24 +273,21 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         // console.log("error");
       });
 
-      const injectedWallet = window.injectedWeb3;
-      const wallet = injectedWallet["polkadot-js"];
+      const wallet = injecteds[source];
       if (!wallet.enable) {
         return;
       }
       const res = await wallet.enable(DARWINIA_APPS);
       if (res) {
-        /*web3Enable MUST be called before calling anything related to the Polkadot Extension*/
-        const enabledExtensions = await web3Enable("anything you want");
+        const enabledExtensions = [res];
 
-        if (enabledExtensions.length === 0) {
-          return;
-        }
         /* this is the signer that needs to be used when we sign a transaction */
         setSigner(enabledExtensions[0].signer);
         /* this will return a list of all the accounts that are in the Polkadot extension */
-        const unfilteredAccounts = await web3Accounts();
-        const accounts = unfilteredAccounts.filter((account) => !account.address.startsWith("0x"));
+        const unfilteredAccounts = await res.accounts.get();
+        const accounts = unfilteredAccounts
+          .filter((account) => !account.address.startsWith("0x"))
+          .map(({ address, genesisHash, name, type }) => ({ address, type, meta: { genesisHash, name, source  } }));
         accounts.forEach((account) => {
           keyring.saveAddress(account.address, account.meta);
         });
@@ -288,6 +297,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           /* we default using the first account */
           setWalletConnected(true);
         }
+        setSelectedWallet(name);
       }
     } catch (e) {
       setWalletConnected(false);
@@ -295,7 +305,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
       setLoadingBalance(false);
       //ignore
     }
-  }, [isWalletInstalled, selectedNetwork, isRequestingWalletConnection, apiPromise, getPrettyName]);
+  }, [selectedNetwork, isRequestingWalletConnection, apiPromise, getPrettyName]);
 
   const changeSelectedNetwork = useCallback(
     (network: ChainConfig) => {

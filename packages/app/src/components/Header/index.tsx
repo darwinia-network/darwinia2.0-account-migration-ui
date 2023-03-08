@@ -14,7 +14,7 @@ import SelectAccountModal, { SelectAccountModalRef } from "../SelectAccountModal
 const Header = () => {
   const [networkOptionsTrigger, setNetworkOptionsTrigger] = useState<HTMLDivElement | null>(null);
   const { t } = useAppTranslation();
-  const { selectedNetwork, changeSelectedNetwork, selectedAccount, connectWallet, forceSetAccountAddress } =
+  const { selectedNetwork, changeSelectedNetwork, selectedAccount, connectWallet, forceSetAccountAddress, walletConfig } =
     useWallet();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -80,7 +80,7 @@ const Header = () => {
               {selectedAccount ? (
                 <div className={"border-primary border pl-[15px]"}>
                   <div className={"flex items-center gap-[10px]"}>
-                    <Identicon size={20} value={selectedAccount?.formattedAddress} theme={"polkadot"} />
+                    <img alt="..." src={walletConfig?.logo} width={20} />
                     <div
                       onClick={onShowSelectAccountModal}
                       className={"select-none pr-[15px] py-[7px] flex gap-[10px]"}
@@ -93,10 +93,11 @@ const Header = () => {
               ) : (
                 <Button
                   onClick={() => {
-                    connectWallet();
+                    connectWallet(walletConfig?.name || 'Polkadot{.js}');
                   }}
                   className={"!px-[15px]"}
                   btnType={"secondary"}
+                  disabled={!walletConfig}
                 >
                   {t(localeKeys.connectWallet)}
                 </Button>
@@ -122,7 +123,7 @@ const Header = () => {
               {selectedAccount ? (
                 <div className={"border-primary border pl-[15px] cursor-pointer"}>
                   <div className={"flex items-center gap-[10px]"}>
-                    <Identicon size={20} value={selectedAccount?.formattedAddress} theme={"polkadot"} />
+                    <img alt="..." src={walletConfig?.logo} width={20} />
                     <div
                       onClick={onShowSelectAccountModal}
                       className={"select-none pr-[15px] py-[5px] flex gap-[10px]"}
@@ -135,10 +136,11 @@ const Header = () => {
               ) : (
                 <Button
                   onClick={() => {
-                    connectWallet();
+                    connectWallet(walletConfig?.name || 'Polkadot{.js}');
                   }}
                   className={"!h-[36px] !px-[15px]"}
                   btnType={"secondary"}
+                  disabled={!walletConfig}
                 >
                   {t(localeKeys.connectWallet)}
                 </Button>
