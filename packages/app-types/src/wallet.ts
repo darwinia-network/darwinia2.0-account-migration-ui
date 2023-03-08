@@ -1,7 +1,7 @@
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { AssetBalance } from "./storage";
 
-export type SupportedWallet = "Polkadot JS Extension";
+export type SupportedWallet = "Polkadot{.js}" | "Talisman" | "SubWallet";
 export type SupportedBrowser = "Chrome" | "Firefox" | "Brave" | "Edge" | "Opera";
 export type ChainName = "Crab" | "Pangolin" | "Darwinia" | "Pangoro";
 import { Struct } from "@polkadot/types";
@@ -36,10 +36,19 @@ export interface WalletExtension {
   downloadURL: string;
 }
 
+export type WalletSource =
+  | 'polkadot-js'
+  | '"polkadot-js"'
+  | 'talisman'
+  | '"talisman"'
+  | 'subwallet-js'
+  | '"subwallet-js"';
+
 export interface WalletConfig {
   name: SupportedWallet;
   logo: string;
   extensions: WalletExtension[];
+  sources: WalletSource[];
 }
 
 export interface WalletError {
@@ -56,7 +65,7 @@ export interface CustomInjectedAccountWithMeta extends InjectedAccountWithMeta {
 export interface WalletCtx {
   isRequestingWalletConnection: boolean;
   isWalletConnected: boolean;
-  connectWallet: () => void;
+  connectWallet: (id: SupportedWallet) => void;
   disconnectWallet: () => void;
   forceSetAccountAddress: (accountAddress: string) => void;
   setSelectedAccount: (selectedAccount: CustomInjectedAccountWithMeta) => void;

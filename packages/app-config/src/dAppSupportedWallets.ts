@@ -1,9 +1,11 @@
-import polkadotJSExtensionLogo from "./assets/images/polkadot.png";
+import polkadotJSExtensionLogo from "./assets/images/wallets/polkadot-js.svg";
+import talismanJSExtensionLogo from "./assets/images/wallets/talisman.svg";
+import subwalletJSExtensionLogo from "./assets/images/wallets/subwallet-js.svg";
 import { WalletConfig } from "@darwinia/app-types";
 
 export const dAppSupportedWallets: WalletConfig[] = [
   {
-    name: "Polkadot JS Extension",
+    name: "Polkadot{.js}",
     logo: polkadotJSExtensionLogo,
     extensions: [
       {
@@ -27,5 +29,48 @@ export const dAppSupportedWallets: WalletConfig[] = [
         downloadURL: "https://polkadot.js.org/extension/",
       },
     ],
+    sources: ['polkadot-js', '"polkadot-js"'],
+  },
+  {
+    name: "Talisman",
+    logo: talismanJSExtensionLogo,
+    extensions: [
+      {
+        browser: "Chrome",
+        downloadURL: "https://chrome.google.com/webstore/detail/talisman-wallet/fijngjgcjhjmmpcmkeiomlglpeiijkld",
+      },
+      {
+        browser: "Firefox",
+        downloadURL: "https://addons.mozilla.org/en-US/firefox/addon/talisman-wallet-extension/",
+      },
+    ],
+    sources: ['talisman', '"talisman"'],
+  },
+  {
+    name: "SubWallet",
+    logo: subwalletJSExtensionLogo,
+    extensions: [
+      {
+        browser: "Chrome",
+        downloadURL: "https://subwallet.app/download.html",
+      },
+      {
+        browser: "Firefox",
+        downloadURL: "https://subwallet.app/download.html",
+      },
+      {
+        browser: "Brave",
+        downloadURL: "https://subwallet.app/download.html",
+      },
+      {
+        browser: "Edge",
+        downloadURL: "https://subwallet.app/download.html",
+      },
+      {
+        browser: "Opera",
+        downloadURL: "https://subwallet.app/download.html",
+      },
+    ],
+    sources: ['subwallet-js', '"subwallet-js"']
   },
 ];
