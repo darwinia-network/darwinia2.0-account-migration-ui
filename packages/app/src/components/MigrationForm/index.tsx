@@ -23,11 +23,14 @@ const MigrationForm = () => {
   const { selectedNetwork, selectedAccount, onInitMigration } = useWallet();
   const { checkEVMAccountStatus, isAccountFree } = useStorage();
   const [isProcessingMigration, setProcessingMigration] = useState<boolean>(false);
+  const [isCheckingAccountStatus, setCheckingAccountStatus] = useState<boolean>(false);
 
   const onDestinationAddressChanged = async (e: ChangeEvent<HTMLInputElement>) => {
     setAddressError(undefined);
     setDestinationAddress(e.target.value);
+    setCheckingAccountStatus(true);
     await checkEVMAccountStatus(e.target.value);
+    setCheckingAccountStatus(false);
   };
 
   const attentionTips: Tip[] = [
@@ -136,9 +139,16 @@ const MigrationForm = () => {
         </div>
       </div>
       <div className={"text-12"}>{t(localeKeys.migrationFormInfo)}</div>
-      <Button onClick={onMigrate} disabled={destinationAddress.trim().length === 0} className={"min-w-[150px]"}>
-        {t(localeKeys.migrate)}
-      </Button>
+      <div className={"w-[150px]"}>
+        <Button
+          isLoading={isCheckingAccountStatus}
+          onClick={onMigrate}
+          disabled={destinationAddress.trim().length === 0}
+          className={"min-w-[150px]"}
+        >
+          {t(localeKeys.migrate)}
+        </Button>
+      </div>
       <ModalEnhanced
         isVisible={isAttentionModalVisible}
         onClose={onCloseAttentionModal}
