@@ -116,7 +116,7 @@ const MigrationStatus = ({ accountMigration }: Props) => {
             <div
               dangerouslySetInnerHTML={{
                 __html: t(localeKeys.whereNextAfterMigration, {
-                  link: "https://www.staking.darwinia.network",
+                  link: "https://staking.darwinia.network",
                 }),
               }}
             />

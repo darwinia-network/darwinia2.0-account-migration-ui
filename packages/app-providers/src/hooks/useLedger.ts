@@ -189,7 +189,9 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
             });
 
             /*Avoid showing the user some negative value when the totalBalance is zero*/
-            const transferableRing = totalBalance.gt(0) ? totalBalance.minus(vestedAmountRing) : BigNumber(0);
+            const transferableRing = totalBalance.gt(0)
+              ? totalBalance.minus(vestedAmountRing).minus(totalDepositsAmount)
+              : BigNumber(0);
 
             if (isDataAtPoint) {
               setMigratedAssetDistribution({
@@ -229,7 +231,9 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           } else {
             // this user never took part in staking
             if (isDataAtPoint) {
-              const transferableRing = totalBalance.gt(0) ? totalBalance.minus(vestedAmountRing) : BigNumber(0);
+              const transferableRing = totalBalance.gt(0)
+                ? totalBalance.minus(vestedAmountRing).minus(totalDepositsAmount)
+                : BigNumber(0);
               setMigratedAssetDistribution({
                 ring: {
                   transferable: transferableRing,
@@ -247,7 +251,9 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
                 },
               });
             } else {
-              const transferableRing = totalBalance.gt(0) ? totalBalance.minus(vestedAmountRing) : BigNumber(0);
+              const transferableRing = totalBalance.gt(0)
+                ? totalBalance.minus(vestedAmountRing).minus(totalDepositsAmount)
+                : BigNumber(0);
               setStakedAssetDistribution({
                 ring: {
                   transferable: transferableRing,
