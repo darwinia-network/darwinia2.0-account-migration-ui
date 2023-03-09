@@ -92,12 +92,12 @@ const Root = () => {
   }, [error, walletConfig]);
 
   //check if it should auto connect to wallet or wait for the user to click the connect wallet button
-  useEffect(() => {
+  /*useEffect(() => {
     const shouldAutoConnect = getStore<boolean>("isConnectedToWallet");
     if (shouldAutoConnect && walletConfig) {
       connectWallet(walletConfig.name);
     }
-  }, [selectedNetwork, walletConfig]);
+  }, [selectedNetwork, walletConfig]);*/
 
   return (
     <Spinner isLoading={!!loading} maskClassName={"!fixed !z-[99]"}>
