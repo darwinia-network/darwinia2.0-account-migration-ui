@@ -86,6 +86,17 @@ const enUs = {
   [localeKeys.migrationNotice]:
     "Please Ensure That You Have The Private Key For This EVM Account. And This Account Is Not From Any Third-Party Platform.",
   [localeKeys.pending]: "Pending",
+  [localeKeys.inProgress]: "In Progress({{number}})",
+  [localeKeys.confirmedExtrinsic]: "Confirmed Extrinsics({{number}})",
+  [localeKeys.cancelledExtrinsics]: "Cancelled Extrinsics({{number}})",
+  [localeKeys.callHash]: "Call hash",
+  [localeKeys.progress]: "Progress",
+  [localeKeys.action]: "Action",
+  [localeKeys.parameters]: "Parameters",
+  [localeKeys.destination]: "Dest",
+  [localeKeys.type]: "Type",
+  [localeKeys.assets]: "Assets",
+  [localeKeys.executed]: "Executed",
 };
 
 export default enUs;

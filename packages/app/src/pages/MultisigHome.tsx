@@ -1,14 +1,13 @@
-import polkadotLogo from "../assets/images/polkadot.png";
-import { Button } from "@darwinia/ui";
 import { useAppTranslation, localeKeys } from "@darwinia/app-locale";
 import { useWallet } from "@darwinia/app-providers";
 import migrationIcon from "../assets/images/migration.svg";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { dAppSupportedWallets } from "@darwinia/app-config";
 
 const MultisigHome = () => {
   const { t } = useAppTranslation();
-  const { connectWallet } = useWallet();
+  const { connectWallet, walletConfig } = useWallet();
 
   return (
     <div className={"flex flex-1 flex-col gap-[20px]"}>
@@ -18,18 +17,26 @@ const MultisigHome = () => {
           <div className={"text-24-bold"} dangerouslySetInnerHTML={{ __html: t(localeKeys.accountMigrationTitle) }} />
         </div>
       </div>
-      <div className={"flex flex-col flex-1 bg-blackSecondary items-center justify-center"}>
-        <div className={"flex flex-col gap-[20px] items-center max-w-[550px]"}>
-          <img className={"w-[65px]"} src={polkadotLogo} alt="image" />
-          <Button
-            onClick={() => {
-              connectWallet();
-            }}
-          >
-            {t(localeKeys.connectWallet)}
-            <span>{" >"}</span>
-          </Button>
-        </div>
+      <div className={"flex flex-1 bg-blackSecondary items-center justify-center gap-5"}>
+        {dAppSupportedWallets.map(({ name, logo, sources }, index) => {
+          const selected = name === walletConfig?.name;
+          const injecteds = window.injectedWeb3;
+          const installed = injecteds && sources.some((source) => injecteds[source]);
+
+          return (
+            <button
+              className={`flex flex-col gap-[10px] items-center justify-center w-[200px] h-[210px] border transition-colors duration-300 ${
+                !installed ? "bg-white/20" : "hover:border-primary"
+              } ${selected ? "border-primary" : "border-white/20"}`}
+              key={index}
+              onClick={() => connectWallet(name)}
+              disabled={!installed}
+            >
+              <img className={"w-[55px]"} src={logo} alt="image" />
+              <span className="text-14-bold">{name}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
