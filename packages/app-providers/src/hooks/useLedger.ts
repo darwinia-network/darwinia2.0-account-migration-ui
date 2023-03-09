@@ -92,6 +92,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
 
         let vestedAmountRing = BigNumber(0);
         let totalBalance = BigNumber(0);
+        let reservedAmount = BigNumber(0);
 
         const tempAccountInfoOption = await api.query.accountMigration.accounts(accountId);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -102,7 +103,9 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           const unwrappedAccountInfo = accountInfoOption.unwrap();
           const accountInfo = unwrappedAccountInfo.toHuman() as unknown as FrameSystemAccountInfo;
           const balance = accountInfo.data.free.toString().replaceAll(",", "");
+          const reserved = accountInfo.data.reserved.toString().replaceAll(",", "");
           totalBalance = BigNumber(balance);
+          reservedAmount = BigNumber(reserved);
         }
 
         const vestingInfoOption = (await api.query.accountMigration.vestings(accountId)) as unknown as Option<
@@ -190,7 +193,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
 
             /*Avoid showing the user some negative value when the totalBalance is zero*/
             const transferableRing = totalBalance.gt(0)
-              ? totalBalance.minus(vestedAmountRing).minus(totalDepositsAmount)
+              ? totalBalance.plus(reservedAmount).minus(vestedAmountRing).minus(totalDepositsAmount)
               : BigNumber(0);
 
             if (isDataAtPoint) {
@@ -232,7 +235,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
             // this user never took part in staking
             if (isDataAtPoint) {
               const transferableRing = totalBalance.gt(0)
-                ? totalBalance.minus(vestedAmountRing).minus(totalDepositsAmount)
+                ? totalBalance.plus(reservedAmount).minus(vestedAmountRing).minus(totalDepositsAmount)
                 : BigNumber(0);
               setMigratedAssetDistribution({
                 ring: {
@@ -252,7 +255,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
               });
             } else {
               const transferableRing = totalBalance.gt(0)
-                ? totalBalance.minus(vestedAmountRing).minus(totalDepositsAmount)
+                ? totalBalance.plus(reservedAmount).minus(vestedAmountRing).minus(totalDepositsAmount)
                 : BigNumber(0);
               setStakedAssetDistribution({
                 ring: {
