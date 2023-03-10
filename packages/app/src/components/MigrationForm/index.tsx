@@ -124,9 +124,9 @@ const MigrationForm = () => {
       <div className={"flex flex-col gap-[10px] divider border-b pb-[20px]"}>
         <div className={"flex gap-[5px] items-center"}>
           <div className={"text-12-bold"}>{t(localeKeys.migrateToEVMAccount)}</div>
-          <Tooltip message={<div>{t(localeKeys.migrateToEVMMessage)}</div>}>
+          {/*<Tooltip message={<div>{t(localeKeys.migrateToEVMMessage)}</div>}>
             <img className={"w-[11px]"} src={helpIcon} alt="image" />
-          </Tooltip>
+          </Tooltip>*/}
         </div>
         <div>
           <Input
