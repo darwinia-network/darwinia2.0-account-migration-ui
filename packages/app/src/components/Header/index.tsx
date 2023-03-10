@@ -14,8 +14,14 @@ import SelectAccountModal, { SelectAccountModalRef } from "../SelectAccountModal
 const Header = () => {
   const [networkOptionsTrigger, setNetworkOptionsTrigger] = useState<HTMLDivElement | null>(null);
   const { t } = useAppTranslation();
-  const { selectedNetwork, changeSelectedNetwork, selectedAccount, connectWallet, forceSetAccountAddress, walletConfig } =
-    useWallet();
+  const {
+    selectedNetwork,
+    changeSelectedNetwork,
+    selectedAccount,
+    connectWallet,
+    forceSetAccountAddress,
+    walletConfig,
+  } = useWallet();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const selectAccountModalRef = useRef<SelectAccountModalRef>(null);
@@ -39,7 +45,7 @@ const Header = () => {
       }
     } else {
       /* use test network by default */
-      const index = supportedNetworks.findIndex((network) => network.name === "Pangolin");
+      const index = supportedNetworks.findIndex((network) => network.name === "Crab");
       changeConnectedNetwork(supportedNetworks[index]);
     }
   }, []);
@@ -93,7 +99,7 @@ const Header = () => {
               ) : (
                 <Button
                   onClick={() => {
-                    connectWallet(walletConfig?.name || 'Polkadot{.js}');
+                    connectWallet(walletConfig?.name || "Polkadot{.js}");
                   }}
                   className={"!px-[15px]"}
                   btnType={"secondary"}
@@ -136,7 +142,7 @@ const Header = () => {
               ) : (
                 <Button
                   onClick={() => {
-                    connectWallet(walletConfig?.name || 'Polkadot{.js}');
+                    connectWallet(walletConfig?.name || "Polkadot{.js}");
                   }}
                   className={"!h-[36px] !px-[15px]"}
                   btnType={"secondary"}
