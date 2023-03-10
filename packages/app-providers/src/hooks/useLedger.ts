@@ -169,25 +169,25 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
                 return [Number(item[0].toString().replaceAll(",", "")), Number(item[1].toString().replaceAll(",", ""))];
               }) ?? [];
 
-            const unbondingRingAmount = BigNumber(0);
-            const unbondedRingAmount = BigNumber(0);
+            let unbondingRingAmount = BigNumber(0);
+            let unbondedRingAmount = BigNumber(0);
             ledgerData.unstakingRing.forEach(([amount, lastBlockNumber]) => {
               const isExpired = currentBlock.number >= lastBlockNumber;
               if (isExpired) {
-                unbondedRingAmount.plus(amount);
+                unbondedRingAmount = unbondedRingAmount.plus(amount);
               } else {
-                unbondingRingAmount.plus(amount);
+                unbondingRingAmount = unbondingRingAmount.plus(amount);
               }
             });
 
-            const unbondingKtonAmount = BigNumber(0);
-            const unbondedKtonAmount = BigNumber(0);
+            let unbondingKtonAmount = BigNumber(0);
+            let unbondedKtonAmount = BigNumber(0);
             ledgerData.unstakingKton.forEach(([amount, lastBlockNumber]) => {
               const isExpired = currentBlock.number >= lastBlockNumber;
               if (isExpired) {
-                unbondedKtonAmount.plus(amount);
+                unbondedKtonAmount = unbondedKtonAmount.plus(amount);
               } else {
-                unbondingKtonAmount.plus(amount);
+                unbondingKtonAmount = unbondingKtonAmount.plus(amount);
               }
             });
 
