@@ -189,7 +189,7 @@ const MigrationStatus = ({ accountMigration }: Props) => {
           )}
         </div>
 
-        <div className={"flex justify-between py-[14px]"}>
+        {/*<div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.value)}</div>
           {accountMigration && (
             <div className={"flex-1 flex flex-col gap-[10px] flex-ellipsis"}>
@@ -223,7 +223,7 @@ const MigrationStatus = ({ accountMigration }: Props) => {
               </div>
             </div>
           )}
-        </div>
+        </div>*/}
       </div>
     </div>
   );
