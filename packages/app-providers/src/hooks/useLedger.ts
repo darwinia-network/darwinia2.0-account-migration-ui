@@ -195,16 +195,11 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
             const transferableRing = totalBalance.gt(0)
               ? totalBalance
                   .plus(reservedAmount)
-                  .minus(vestedAmountRing)
                   .minus(totalDepositsAmount)
-                  .minus(ledgerData.stakedRing)
                   .minus(unbondedRingAmount)
                   .minus(unbondingRingAmount)
               : BigNumber(0);
-            const transferableKTON = ktonBalance
-              .minus(ledgerData.stakedKton)
-              .minus(unbondedKtonAmount)
-              .minus(unbondingKtonAmount);
+            const transferableKTON = ktonBalance.minus(unbondedKtonAmount).minus(unbondingKtonAmount);
 
             if (isDataAtPoint) {
               setMigratedAssetDistribution({
@@ -245,7 +240,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
             // this user never took part in staking
             if (isDataAtPoint) {
               const transferableRing = totalBalance.gt(0)
-                ? totalBalance.plus(reservedAmount).minus(vestedAmountRing).minus(totalDepositsAmount)
+                ? totalBalance.plus(reservedAmount).minus(totalDepositsAmount)
                 : BigNumber(0);
               const transferableKTON = ktonBalance;
 
@@ -267,7 +262,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
               });
             } else {
               const transferableRing = totalBalance.gt(0)
-                ? totalBalance.plus(reservedAmount).minus(vestedAmountRing).minus(totalDepositsAmount)
+                ? totalBalance.plus(reservedAmount).minus(totalDepositsAmount)
                 : BigNumber(0);
               setStakedAssetDistribution({
                 ring: {
