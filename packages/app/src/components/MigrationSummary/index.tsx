@@ -2,6 +2,8 @@ import { localeKeys, useAppTranslation } from "@darwinia/app-locale";
 import { useStorage, useWallet } from "@darwinia/app-providers";
 import ringIcon from "../../assets/images/ring.svg";
 import ktonIcon from "../../assets/images/kton.svg";
+import crabIcon from "../../assets/images/crab.svg";
+import cktonIcon from "../../assets/images/ckton.svg";
 import helpIcon from "../../assets/images/help.svg";
 import { Tooltip } from "@darwinia/ui";
 import { prettifyNumber, prettifyTooltipNumber } from "@darwinia/app-utils";
@@ -21,6 +23,9 @@ const MigrationSummary = ({ isCheckingMigrationStatus }: Props) => {
     setTransactionStatus(!!isLoadingLedger || isCheckingMigrationStatus);
   }, [isLoadingLedger, isCheckingMigrationStatus]);
 
+  const ringTokenIcon = selectedNetwork?.name === "Crab" ? crabIcon : ringIcon;
+  const ktonTokenIcon = selectedNetwork?.name === "Crab" ? cktonIcon : ktonIcon;
+
   return (
     <div className={"card flex gap-[20px] flex-col"}>
       <div className={"flex flex-col lg:flex-row gap-[20px]"}>
@@ -28,7 +33,7 @@ const MigrationSummary = ({ isCheckingMigrationStatus }: Props) => {
           <div className={"flex pb-[20px] divider border-b"}>
             <div className={"flex flex-1 gap-[5px] justify-between items-center"}>
               <div className={"flex items-center gap-[5px]"}>
-                <img className={"w-[30px] shrink-0"} src={ringIcon} alt={"image"} />
+                <img className={"w-[30px] shrink-0"} src={ringTokenIcon} alt={"image"} />
                 <div className={"text-18-bold"}>{selectedNetwork?.ring.symbol.toUpperCase()}</div>
               </div>
             </div>
@@ -128,7 +133,7 @@ const MigrationSummary = ({ isCheckingMigrationStatus }: Props) => {
           <div className={"flex pb-[20px] divider border-b"}>
             <div className={"flex flex-1 gap-[5px] justify-between items-center"}>
               <div className={"flex items-center gap-[5px]"}>
-                <img className={"w-[30px] shrink-0"} src={ktonIcon} alt={"image"} />
+                <img className={"w-[30px] shrink-0"} src={ktonTokenIcon} alt={"image"} />
                 <div className={"text-18-bold"}>{selectedNetwork?.kton.symbol.toUpperCase()}</div>
               </div>
             </div>
