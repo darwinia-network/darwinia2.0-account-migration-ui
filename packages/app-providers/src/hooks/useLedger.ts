@@ -196,11 +196,15 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
               ? totalBalance
                   .plus(reservedAmount)
                   .minus(vestedAmountRing)
+                  .minus(ledgerData.stakedRing)
                   .minus(totalDepositsAmount)
                   .minus(unbondedRingAmount)
                   .minus(unbondingRingAmount)
               : BigNumber(0);
-            const transferableKTON = ktonBalance.minus(unbondedKtonAmount).minus(unbondingKtonAmount);
+            const transferableKTON = ktonBalance
+              .minus(ledgerData.stakedKton)
+              .minus(unbondedKtonAmount)
+              .minus(unbondingKtonAmount);
 
             if (isDataAtPoint) {
               setMigratedAssetDistribution({
