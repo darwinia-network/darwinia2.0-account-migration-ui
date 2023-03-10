@@ -70,7 +70,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           setLoadingMigratedLedger(false);
         }
 
-        let transferableKTON = BigNumber(0);
+        let ktonBalance = BigNumber(0);
         const ktonAccountInfo: Option<DarwiniaAccountMigrationAssetAccount> =
           (await api.query.accountMigration.ktonAccounts(
             accountId
@@ -79,7 +79,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           const unwrappedKTONAccount = ktonAccountInfo.unwrap();
           const decodedKTONAccount = unwrappedKTONAccount.toHuman() as unknown as DarwiniaAccountMigrationAssetAccount;
           const ktonBalanceString = decodedKTONAccount.balance.toString().replaceAll(",", "");
-          transferableKTON = BigNumber(ktonBalanceString);
+          ktonBalance = BigNumber(ktonBalanceString);
         }
 
         const ledgerInfo: Option<DarwiniaStakingLedgerEncoded> = (await api.query.accountMigration.ledgers(
@@ -193,8 +193,18 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
 
             /*Avoid showing the user some negative value when the totalBalance is zero*/
             const transferableRing = totalBalance.gt(0)
-              ? totalBalance.plus(reservedAmount).minus(vestedAmountRing).minus(totalDepositsAmount)
+              ? totalBalance
+                  .plus(reservedAmount)
+                  .minus(vestedAmountRing)
+                  .minus(totalDepositsAmount)
+                  .minus(ledgerData.stakedRing)
+                  .minus(unbondedRingAmount)
+                  .minus(unbondingRingAmount)
               : BigNumber(0);
+            const transferableKTON = ktonBalance
+              .minus(ledgerData.stakedKton)
+              .minus(unbondedKtonAmount)
+              .minus(unbondingKtonAmount);
 
             if (isDataAtPoint) {
               setMigratedAssetDistribution({
@@ -237,6 +247,8 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
               const transferableRing = totalBalance.gt(0)
                 ? totalBalance.plus(reservedAmount).minus(vestedAmountRing).minus(totalDepositsAmount)
                 : BigNumber(0);
+              const transferableKTON = ktonBalance;
+
               setMigratedAssetDistribution({
                 ring: {
                   transferable: transferableRing,
