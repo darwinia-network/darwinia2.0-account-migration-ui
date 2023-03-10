@@ -195,6 +195,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
             const transferableRing = totalBalance.gt(0)
               ? totalBalance
                   .plus(reservedAmount)
+                  .minus(vestedAmountRing)
                   .minus(totalDepositsAmount)
                   .minus(unbondedRingAmount)
                   .minus(unbondingRingAmount)
@@ -240,7 +241,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
             // this user never took part in staking
             if (isDataAtPoint) {
               const transferableRing = totalBalance.gt(0)
-                ? totalBalance.plus(reservedAmount).minus(totalDepositsAmount)
+                ? totalBalance.plus(reservedAmount).minus(totalDepositsAmount).minus(vestedAmountRing)
                 : BigNumber(0);
               const transferableKTON = ktonBalance;
 
