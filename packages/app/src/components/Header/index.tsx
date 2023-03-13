@@ -21,6 +21,7 @@ const Header = () => {
     connectWallet,
     forceSetAccountAddress,
     walletConfig,
+    isMultisig,
   } = useWallet();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
