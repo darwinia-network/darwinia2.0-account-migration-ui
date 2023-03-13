@@ -70,7 +70,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           setLoadingMigratedLedger(false);
         }
 
-        let transferableKTON = BigNumber(0);
+        let ktonBalance = BigNumber(0);
         const ktonAccountInfo: Option<DarwiniaAccountMigrationAssetAccount> =
           (await api.query.accountMigration.ktonAccounts(
             accountId
@@ -79,7 +79,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           const unwrappedKTONAccount = ktonAccountInfo.unwrap();
           const decodedKTONAccount = unwrappedKTONAccount.toHuman() as unknown as DarwiniaAccountMigrationAssetAccount;
           const ktonBalanceString = decodedKTONAccount.balance.toString().replaceAll(",", "");
-          transferableKTON = BigNumber(ktonBalanceString);
+          ktonBalance = BigNumber(ktonBalanceString);
         }
 
         const ledgerInfo: Option<DarwiniaStakingLedgerEncoded> = (await api.query.accountMigration.ledgers(
@@ -92,6 +92,7 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
 
         let vestedAmountRing = BigNumber(0);
         let totalBalance = BigNumber(0);
+        let reservedAmount = BigNumber(0);
 
         const tempAccountInfoOption = await api.query.accountMigration.accounts(accountId);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -102,7 +103,9 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           const unwrappedAccountInfo = accountInfoOption.unwrap();
           const accountInfo = unwrappedAccountInfo.toHuman() as unknown as FrameSystemAccountInfo;
           const balance = accountInfo.data.free.toString().replaceAll(",", "");
+          const reserved = accountInfo.data.reserved.toString().replaceAll(",", "");
           totalBalance = BigNumber(balance);
+          reservedAmount = BigNumber(reserved);
         }
 
         const vestingInfoOption = (await api.query.accountMigration.vestings(accountId)) as unknown as Option<
@@ -166,30 +169,42 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
                 return [Number(item[0].toString().replaceAll(",", "")), Number(item[1].toString().replaceAll(",", ""))];
               }) ?? [];
 
-            const unbondingRingAmount = BigNumber(0);
-            const unbondedRingAmount = BigNumber(0);
+            let unbondingRingAmount = BigNumber(0);
+            let unbondedRingAmount = BigNumber(0);
             ledgerData.unstakingRing.forEach(([amount, lastBlockNumber]) => {
               const isExpired = currentBlock.number >= lastBlockNumber;
               if (isExpired) {
-                unbondedRingAmount.plus(amount);
+                unbondedRingAmount = unbondedRingAmount.plus(amount);
               } else {
-                unbondingRingAmount.plus(amount);
+                unbondingRingAmount = unbondingRingAmount.plus(amount);
               }
             });
 
-            const unbondingKtonAmount = BigNumber(0);
-            const unbondedKtonAmount = BigNumber(0);
+            let unbondingKtonAmount = BigNumber(0);
+            let unbondedKtonAmount = BigNumber(0);
             ledgerData.unstakingKton.forEach(([amount, lastBlockNumber]) => {
               const isExpired = currentBlock.number >= lastBlockNumber;
               if (isExpired) {
-                unbondedKtonAmount.plus(amount);
+                unbondedKtonAmount = unbondedKtonAmount.plus(amount);
               } else {
-                unbondingKtonAmount.plus(amount);
+                unbondingKtonAmount = unbondingKtonAmount.plus(amount);
               }
             });
 
             /*Avoid showing the user some negative value when the totalBalance is zero*/
-            const transferableRing = totalBalance.gt(0) ? totalBalance.minus(vestedAmountRing) : BigNumber(0);
+            const transferableRing = totalBalance.gt(0)
+              ? totalBalance
+                  .plus(reservedAmount)
+                  .minus(vestedAmountRing)
+                  .minus(ledgerData.stakedRing)
+                  .minus(totalDepositsAmount)
+                  .minus(unbondedRingAmount)
+                  .minus(unbondingRingAmount)
+              : BigNumber(0);
+            const transferableKTON = ktonBalance
+              .minus(ledgerData.stakedKton)
+              .minus(unbondedKtonAmount)
+              .minus(unbondingKtonAmount);
 
             if (isDataAtPoint) {
               setMigratedAssetDistribution({
@@ -229,7 +244,11 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
           } else {
             // this user never took part in staking
             if (isDataAtPoint) {
-              const transferableRing = totalBalance.gt(0) ? totalBalance.minus(vestedAmountRing) : BigNumber(0);
+              const transferableRing = totalBalance.gt(0)
+                ? totalBalance.plus(reservedAmount).minus(totalDepositsAmount).minus(vestedAmountRing)
+                : BigNumber(0);
+              const transferableKTON = ktonBalance;
+
               setMigratedAssetDistribution({
                 ring: {
                   transferable: transferableRing,
@@ -247,7 +266,9 @@ const useLedger = ({ apiPromise, selectedAccount, selectedNetwork }: Params) => 
                 },
               });
             } else {
-              const transferableRing = totalBalance.gt(0) ? totalBalance.minus(vestedAmountRing) : BigNumber(0);
+              const transferableRing = totalBalance.gt(0)
+                ? totalBalance.plus(reservedAmount).minus(totalDepositsAmount)
+                : BigNumber(0);
               setStakedAssetDistribution({
                 ring: {
                   transferable: transferableRing,

@@ -18,7 +18,7 @@ const enUs = {
   [localeKeys.locked]: "Locked",
   [localeKeys.unbonded]: "Unbonded",
   [localeKeys.unbonding]: "Unbonding",
-  [localeKeys.vested]: "Vested",
+  [localeKeys.vested]: "Vesting locked",
   [localeKeys.migrateToEVMAccount]: "Migrate to EVM account",
   [localeKeys.migrateToEVMAccountPlaceholder]: "EVM account format e.g. 0x267be1…",
   [localeKeys.migrationFormInfo]:

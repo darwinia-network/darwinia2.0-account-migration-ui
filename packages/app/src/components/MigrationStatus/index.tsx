@@ -6,6 +6,8 @@ import copyIcon from "../../assets/images/copy.svg";
 import clockIcon from "../../assets/images/clock.svg";
 import ringIcon from "../../assets/images/ring.svg";
 import ktonIcon from "../../assets/images/kton.svg";
+import crabIcon from "../../assets/images/crab.svg";
+import cktonIcon from "../../assets/images/ckton.svg";
 import helpIcon from "../../assets/images/help.svg";
 import { Tooltip } from "@darwinia/ui";
 import { useStorage, useWallet } from "@darwinia/app-providers";
@@ -38,6 +40,9 @@ const MigrationStatus = ({ accountMigration }: Props) => {
       retrieveMigratedAsset(accountMigration.id, accountMigration.parentHash);
     }
   }, [accountMigration]);
+
+  const ringTokenIcon = selectedNetwork?.name === "Crab" ? crabIcon : ringIcon;
+  const ktonTokenIcon = selectedNetwork?.name === "Crab" ? cktonIcon : ktonIcon;
 
   const getRingTooltipMessage = () => {
     return (
@@ -116,7 +121,7 @@ const MigrationStatus = ({ accountMigration }: Props) => {
             <div
               dangerouslySetInnerHTML={{
                 __html: t(localeKeys.whereNextAfterMigration, {
-                  link: "https://www.staking.darwinia.network",
+                  link: "https://staking.darwinia.network",
                 }),
               }}
             />
@@ -184,12 +189,12 @@ const MigrationStatus = ({ accountMigration }: Props) => {
           )}
         </div>
 
-        <div className={"flex justify-between py-[14px]"}>
+        {/*<div className={"flex justify-between py-[14px]"}>
           <div className={"min-w-[150px] lg:min-w-[200px]"}>{t(localeKeys.value)}</div>
           {accountMigration && (
             <div className={"flex-1 flex flex-col gap-[10px] flex-ellipsis"}>
               <div className={"flex gap-[10px] items-center"}>
-                <img className={"w-[18px] shrink-0"} src={ringIcon} alt="image" />
+                <img className={"w-[18px] shrink-0"} src={ringTokenIcon} alt="image" />
                 <div className={"flex gap-[10px] items-center"}>
                   <Tooltip message={prettifyTooltipNumber(totalRING)}>
                     {prettifyNumber({
@@ -203,7 +208,7 @@ const MigrationStatus = ({ accountMigration }: Props) => {
                 </Tooltip>
               </div>
               <div className={"flex gap-[10px] items-center"}>
-                <img className={"w-[18px] shrink-0"} src={ktonIcon} alt="image" />
+                <img className={"w-[18px] shrink-0"} src={ktonTokenIcon} alt="image" />
                 <div className={"flex gap-[10px] items-center"}>
                   <Tooltip message={prettifyTooltipNumber(totalKTON)}>
                     {prettifyNumber({
@@ -218,7 +223,7 @@ const MigrationStatus = ({ accountMigration }: Props) => {
               </div>
             </div>
           )}
-        </div>
+        </div>*/}
       </div>
     </div>
   );

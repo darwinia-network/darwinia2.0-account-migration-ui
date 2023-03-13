@@ -14,8 +14,14 @@ import SelectAccountModal, { SelectAccountModalRef } from "../SelectAccountModal
 const Header = () => {
   const [networkOptionsTrigger, setNetworkOptionsTrigger] = useState<HTMLDivElement | null>(null);
   const { t } = useAppTranslation();
-  const { selectedNetwork, changeSelectedNetwork, selectedAccount, connectWallet, forceSetAccountAddress, isMultisig, walletConfig } =
-    useWallet();
+  const {
+    selectedNetwork,
+    changeSelectedNetwork,
+    selectedAccount,
+    connectWallet,
+    forceSetAccountAddress,
+    walletConfig,
+  } = useWallet();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const selectAccountModalRef = useRef<SelectAccountModalRef>(null);
@@ -39,7 +45,7 @@ const Header = () => {
       }
     } else {
       /* use test network by default */
-      const index = supportedNetworks.findIndex((network) => network.name === "Pangolin");
+      const index = supportedNetworks.findIndex((network) => network.name === "Crab");
       changeConnectedNetwork(supportedNetworks[index]);
     }
   }, []);
@@ -93,7 +99,7 @@ const Header = () => {
               ) : (
                 <Button
                   onClick={() => {
-                    connectWallet(walletConfig?.name || 'Polkadot{.js}');
+                    connectWallet(walletConfig?.name || "Polkadot{.js}");
                   }}
                   className={"!px-[15px]"}
                   btnType={"secondary"}
@@ -120,34 +126,30 @@ const Header = () => {
                   </div>
                 );
               })}
-              {!isMultisig && (
-                <div>
-                  {selectedAccount ? (
-                    <div className={"border-primary border pl-[15px] cursor-pointer"}>
-                      <div className={"flex items-center gap-[10px]"}>
-                        <img alt="..." src={walletConfig?.logo} width={20} />
-                        <div
-                          onClick={onShowSelectAccountModal}
-                          className={"select-none pr-[15px] py-[5px] flex gap-[10px]"}
-                        >
-                          <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.address)}</div>
-                          <img className={"w-[16px]"} src={caretIcon} alt="image" />
-                        </div>
-                      </div>
+              {!isMultisig && selectedAccount ? (
+                <div className={"border-primary border pl-[15px] cursor-pointer"}>
+                  <div className={"flex items-center gap-[10px]"}>
+                    <img alt="..." src={walletConfig?.logo} width={20} />
+                    <div
+                      onClick={onShowSelectAccountModal}
+                      className={"select-none pr-[15px] py-[5px] flex gap-[10px]"}
+                    >
+                      <div>{selectedAccount.prettyName ?? toShortAddress(selectedAccount.formattedAddress)}</div>
+                      <img className={"w-[16px]"} src={caretIcon} alt="image" />
                     </div>
-                  ) : (
-                      <Button
-                          onClick={() => {
-                            connectWallet(walletConfig?.name || 'Polkadot{.js}');
-                          }}
-                          className={"!h-[36px] !px-[15px]"}
-                          btnType={"secondary"}
-                          disabled={!walletConfig}
-                      >
-                        {t(localeKeys.connectWallet)}
-                      </Button>
-                  )}
+                  </div>
                 </div>
+              ) : (
+                <Button
+                  onClick={() => {
+                    connectWallet(walletConfig?.name || "Polkadot{.js}");
+                  }}
+                  className={"!h-[36px] !px-[15px]"}
+                  btnType={"secondary"}
+                  disabled={!walletConfig}
+                >
+                  {t(localeKeys.connectWallet)}
+                </Button>
               )}
             </div>
             {/*network switch toggle*/}
