@@ -16,6 +16,7 @@ const Root = () => {
     selectedNetwork,
     isLoadingTransaction,
     walletConfig,
+    setMultisig,
     isLoadingBalance,
   } = useWallet();
   const { isLoadingLedger, isLoadingMigratedLedger } = useStorage();
@@ -44,7 +45,18 @@ const Root = () => {
   const redirect = useCallback(() => {
     setStore("isConnectedToWallet", true);
     if (location.pathname === "/") {
+      if (setMultisig) {
+        setMultisig(false);
+      }
       navigate(`/migration${location.search}`, { replace: true });
+      return;
+    }
+
+    if (location.pathname === "/multisig-home") {
+      if (setMultisig) {
+        setMultisig(true);
+      }
+      navigate(`/multisig-migration${location.search}`, { replace: true });
       return;
     }
 
@@ -53,14 +65,25 @@ const Root = () => {
       const nextPath = location.state.from.pathname ? location.state.from.pathname : "/migration";
       navigate(`${nextPath}${location.search}`, { replace: true });
     }
-  }, [location, navigate]);
+  }, [location, navigate, setMultisig]);
 
   /*Monitor wallet connection and redirect to the required location */
   useEffect(() => {
     if (isWalletConnected) {
       redirect();
+    } else {
+      // the wallet isn't connected
+      if (location.pathname === "/") {
+        if (setMultisig) {
+          setMultisig(false);
+        }
+      } else if (location.pathname.includes("multisig")) {
+        if (setMultisig) {
+          setMultisig(true);
+        }
+      }
     }
-  }, [isWalletConnected]);
+  }, [isWalletConnected, location]);
 
   useEffect(() => {
     if (error) {
@@ -92,12 +115,14 @@ const Root = () => {
   }, [error, walletConfig]);
 
   //check if it should auto connect to wallet or wait for the user to click the connect wallet button
+  // no need to auto connect so as to allow
   /*useEffect(() => {
     const shouldAutoConnect = getStore<boolean>("isConnectedToWallet");
     if (shouldAutoConnect && walletConfig) {
       connectWallet(walletConfig.name);
     }
-  }, [selectedNetwork, walletConfig]);*/
+  }, [selectedNetwork, walletConfig]);
+  }, [selectedNetwork]);*/
 
   return (
     <Spinner isLoading={!!loading} maskClassName={"!fixed !z-[99]"}>

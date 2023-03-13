@@ -21,6 +21,7 @@ const Header = () => {
     connectWallet,
     forceSetAccountAddress,
     walletConfig,
+    isMultisig,
   } = useWallet();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -126,7 +127,7 @@ const Header = () => {
                   </div>
                 );
               })}
-              {selectedAccount ? (
+              {!isMultisig && selectedAccount ? (
                 <div className={"border-primary border pl-[15px] cursor-pointer"}>
                   <div className={"flex items-center gap-[10px]"}>
                     <img alt="..." src={walletConfig?.logo} width={20} />
